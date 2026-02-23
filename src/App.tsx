@@ -3,10 +3,32 @@ import './styles/globals.css'
 import { useGolfData } from './hooks/useGolfData'
 import { TABS, Tiger5Metrics } from './types/golf'
 import { getStrokeGainedColor, formatStrokesGained } from './styles/tokens'
+import { FilterBar } from './components/FilterBar'
+import { getBenchmarkOptions } from './data/benchmarks'
+import type { BenchmarkType } from './data/benchmarks'
 
 function App() {
   const [activeTab, setActiveTab] = useState('tiger5')
-  const { processedShots, tiger5Metrics, isLoading, error, lastUpdated } = useGolfData()
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const { 
+    filteredShots, 
+    tiger5Metrics, 
+    isLoading, 
+    error, 
+    lastUpdated,
+    cascadingFilterOptions,
+    filters,
+    setFilters,
+    clearFilters,
+    benchmark,
+    setBenchmark,
+  } = useGolfData()
+
+  const benchmarkOptions = getBenchmarkOptions()
+
+  const handleBenchmarkChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setBenchmark(e.target.value as BenchmarkType)
+  }
 
   return (
     <div className="app">
@@ -15,6 +37,22 @@ function App() {
         <div className="header-content">
           <h1>Golf <em>Intelligence</em></h1>
           <p className="subtitle">Analytics Dashboard</p>
+        </div>
+        {/* Benchmark Selector */}
+        <div className="benchmark-selector">
+          <label htmlFor="benchmark-select">Benchmark:</label>
+          <select 
+            id="benchmark-select"
+            value={benchmark} 
+            onChange={handleBenchmarkChange}
+            className="benchmark-dropdown"
+          >
+            {benchmarkOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
       </header>
 
@@ -33,8 +71,20 @@ function App() {
         </div>
       </nav>
 
+      {/* Filter Bar */}
+      {!isLoading && !error && (
+        <FilterBar 
+          filters={filters}
+          options={cascadingFilterOptions}
+          onFilterChange={setFilters}
+          onClear={clearFilters}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+      )}
+
       {/* Main Content */}
-      <main className="main">
+      <main className={`main ${!isLoading && !error ? 'main-with-sidebar' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {isLoading && (
           <div className="loading">
             <div className="loading-spinner"></div>
@@ -59,7 +109,7 @@ function App() {
           <div className="content">
             <div className="card">
               <h3>{TABS.find(t => t.id === activeTab)?.label}</h3>
-              <p>Coming soon... ({processedShots.length} shots loaded)</p>
+              <p>Coming soon... ({filteredShots.length} shots loaded)</p>
             </div>
           </div>
         )}

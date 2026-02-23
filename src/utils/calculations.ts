@@ -4,6 +4,8 @@
  */
 
 import type { RawShot, ProcessedShot, ShotType, ShotCategory, Tiger5Metrics, RoundSummary } from '../types/golf';
+import type { BenchmarkType } from '../data/benchmarks';
+import { calculateStrokesGained } from '../data/benchmarks';
 
 /**
  * Calculate Hole Par based on starting distance of first shot
@@ -65,7 +67,7 @@ export function classifyShotType(shot: RawShot, holePar: number): ShotType {
 /**
  * Process raw shots into enhanced shots with computed fields
  */
-export function processShots(rawShots: RawShot[]): ProcessedShot[] {
+export function processShots(rawShots: RawShot[], benchmark: BenchmarkType = 'pgaTour'): ProcessedShot[] {
   // Group shots by round and hole to find first shots
   const firstShotsByHole = new Map<string, RawShot>();
   
@@ -87,11 +89,21 @@ export function processShots(rawShots: RawShot[]): ProcessedShot[] {
     const roundHoleKey = `${shot['Round ID']}-${shot.Hole}`;
     const holePar = holePars.get(roundHoleKey) || 4;
     
+    // Calculate SG using benchmark
+    const calculatedSG = calculateStrokesGained(
+      benchmark,
+      shot['Starting Distance'],
+      shot['Starting Location'],
+      shot['Ending Distance'],
+      shot['Ending Location']
+    );
+    
     return {
       ...shot,
       holePar,
       shotType: classifyShotType(shot, holePar),
       scoreToPar: 0, // Will be calculated at round level
+      calculatedStrokesGained: calculatedSG,
     };
   });
 }
@@ -113,7 +125,8 @@ export function calculateTiger5Metrics(shots: ProcessedShot[]): Tiger5Metrics {
     };
   }
   
-  const totalStrokesGained = shots.reduce((sum, s) => sum + s['Strokes Gained'], 0);
+  // Use calculated SG from benchmark (not raw data SG)
+  const totalStrokesGained = shots.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
   const totalShots = shots.length;
   const avgStrokesGained = totalStrokesGained / totalShots;
   
@@ -155,7 +168,8 @@ export function calculateTiger5Metrics(shots: ProcessedShot[]): Tiger5Metrics {
   const byCategory: ShotCategory[] = categories.map(type => {
     const categoryShots = shots.filter(s => s.shotType === type);
     const catTotal = categoryShots.length;
-    const catSG = categoryShots.reduce((sum, s) => sum + s['Strokes Gained'], 0);
+    // Use calculated SG from benchmark
+    const catSG = categoryShots.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
     
     return {
       type,
@@ -198,7 +212,8 @@ export function getRoundSummaries(shots: ProcessedShot[]): RoundSummary[] {
   
   roundMap.forEach((roundShots, roundId) => {
     const firstShot = roundShots[0];
-    const totalSG = roundShots.reduce((sum, s) => sum + s['Strokes Gained'], 0);
+    // Use calculated SG from benchmark
+    const totalSG = roundShots.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
     
     // Count fairways
     const drives = roundShots.filter(s => s.shotType === 'Drive' && s.holePar >= 4);

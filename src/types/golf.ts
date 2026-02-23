@@ -33,6 +33,7 @@ export interface ProcessedShot extends RawShot {
   shotType: ShotType;
   holePar: number;
   scoreToPar: number; // Will need round-level data to calculate
+  calculatedStrokesGained: number; // SG calculated from benchmark (not raw data)
 }
 
 // Shot category for aggregation
@@ -88,3 +89,18 @@ export const TABS: Tab[] = [
   { id: 'path', label: 'Player Path', path: '/player-path' },
   { id: 'coaching', label: 'Coaching', path: '/coaching' },
 ];
+
+// Filter types
+export interface FilterState {
+  players: string[];
+  courses: string[];
+  tournaments: string[];
+  dates: string[];
+}
+
+export interface FilterOptions {
+  players: string[];
+  courses: string[];
+  tournaments: string[];
+  dates: string[];
+}
