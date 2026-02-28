@@ -3,7 +3,7 @@
  * Based on your shot classification rules
  */
 
-import type { RawShot, ProcessedShot, ShotType, ShotCategory, Tiger5Metrics, RoundSummary, Tiger5Fail, HoleScore, RootCauseMetrics, Tiger5FailDetail, Tiger5FailDetails, RootCauseByFailTypeList, RootCauseByFailType, Tiger5TrendDataPoint } from '../types/golf';
+import type { RawShot, ProcessedShot, ShotType, ShotCategory, Tiger5Metrics, RoundSummary, Tiger5Fail, HoleScore, RootCauseMetrics, Tiger5FailDetail, Tiger5FailDetails, RootCauseByFailTypeList, RootCauseByFailType, Tiger5TrendDataPoint, SGSeparator } from '../types/golf';
 import type { BenchmarkType } from '../data/benchmarks';
 import { calculateStrokesGained } from '../data/benchmarks';
 
@@ -917,6 +917,7 @@ export function calculateTiger5Metrics(shots: ProcessedShot[]): Tiger5Metrics {
       bogeyApproach: { failType: 'Bogey: Approach <125', totalCount: 0, makeablePutts: 0, makeablePuttsSG: 0, lagPutts: 0, lagPuttsSG: 0, driving: 0, drivingSG: 0, approach: 0, approachSG: 0, shortGame: 0, shortGameSG: 0, recovery: 0, recoverySG: 0, penalties: 0, penaltiesSG: 0 },
       missedGreen: { failType: 'Missed Green', totalCount: 0, makeablePutts: 0, makeablePuttsSG: 0, lagPutts: 0, lagPuttsSG: 0, driving: 0, drivingSG: 0, approach: 0, approachSG: 0, shortGame: 0, shortGameSG: 0, recovery: 0, recoverySG: 0, penalties: 0, penaltiesSG: 0 },
     };
+    const defaultSGSeparators: SGSeparator[] = [];
     return {
       totalStrokesGained: 0,
       avgStrokesGained: 0,
@@ -934,6 +935,7 @@ export function calculateTiger5Metrics(shots: ProcessedShot[]): Tiger5Metrics {
       lowestRound: 0,
       highestRound: 0,
       avgScore: 0,
+      sgSeparators: defaultSGSeparators,
     };
   }
   
@@ -999,6 +1001,9 @@ export function calculateTiger5Metrics(shots: ProcessedShot[]): Tiger5Metrics {
   const rootCauseByFailType = calculateRootCauseByFailType(shots, holeScores, tiger5Fails.totalFails);
   const tiger5Trend = calculateTiger5Trend(shots, holeScores);
   
+  // Calculate SG Separators
+  const sgSeparators = calculateSGSeparators(shots);
+  
   // Calculate round scores (total strokes per round)
   const roundScores = new Map<string, number>();
   const roundSG = new Map<string, number>();
@@ -1051,6 +1056,7 @@ export function calculateTiger5Metrics(shots: ProcessedShot[]): Tiger5Metrics {
     lowestRound,
     highestRound,
     avgScore,
+    sgSeparators,
   };
 }
 
@@ -1105,4 +1111,91 @@ export function getRoundSummaries(shots: ProcessedShot[]): RoundSummary[] {
   summaries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   
   return summaries;
+}
+
+/**
+ * Calculate Strokes Gained Separators by distance buckets
+ * 
+ * SG Driving - All Drive shots
+ * SG Short shots 0-35 yards - Starting distance 0-35 yards
+ * SG Short Approach 100-150 - Starting distance 100-150 yards  
+ * SG Distance Wedges 50-100 - Starting distance 50-100 yards
+ * SG Putting 5-12 feet - Putts from 5-12 feet (60-144 inches)
+ */
+export function calculateSGSeparators(shots: ProcessedShot[]): SGSeparator[] {
+  // SG Driving - All Drive shots
+  const drivingShots = shots.filter(s => s.shotType === 'Drive');
+  const drivingSG = drivingShots.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+  
+  // SG Short shots 0-35 yards - Starting distance 0-35 yards (excluding drives)
+  const shortShots0to35 = shots.filter(s => {
+    if (s.shotType === 'Drive') return false;
+    const startDist = s['Starting Distance'];
+    return startDist >= 0 && startDist <= 35;
+  });
+  const shortShots0to35SG = shortShots0to35.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+  
+  // SG Short Approach 100-150 - Starting distance 100-150 yards
+  const shortApproach100to150 = shots.filter(s => {
+    const startDist = s['Starting Distance'];
+    return startDist >= 100 && startDist <= 150;
+  });
+  const shortApproach100to150SG = shortApproach100to150.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+  
+  // SG Distance Wedges 50-100 - Starting distance 50-100 yards
+  const distanceWedges50to100 = shots.filter(s => {
+    const startDist = s['Starting Distance'];
+    return startDist >= 50 && startDist <= 100;
+  });
+  const distanceWedges50to100SG = distanceWedges50to100.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+  
+  // SG Putting 5-12 feet - Putts from 5-12 feet (60-144 inches)
+  // The data uses starting distance in the same units - for putting, it's measured in inches
+  // 5 feet = 60 inches, 12 feet = 144 inches
+  const putting5to12 = shots.filter(s => {
+    if (s.shotType !== 'Putt') return false;
+    const startDist = s['Starting Distance'];
+    return startDist >= 60 && startDist <= 144;
+  });
+  const putting5to12SG = putting5to12.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+  
+  const separators: SGSeparator[] = [
+    {
+      label: 'Driving',
+      description: 'All drives',
+      totalShots: drivingShots.length,
+      strokesGained: drivingSG,
+      avgStrokesGained: drivingShots.length > 0 ? drivingSG / drivingShots.length : 0,
+    },
+    {
+      label: 'Short Shots',
+      description: '0-35 yards',
+      totalShots: shortShots0to35.length,
+      strokesGained: shortShots0to35SG,
+      avgStrokesGained: shortShots0to35.length > 0 ? shortShots0to35SG / shortShots0to35.length : 0,
+    },
+    {
+      label: 'Short Approach',
+      description: '100-150 yards',
+      totalShots: shortApproach100to150.length,
+      strokesGained: shortApproach100to150SG,
+      avgStrokesGained: shortApproach100to150.length > 0 ? shortApproach100to150SG / shortApproach100to150.length : 0,
+    },
+    {
+      label: 'Distance Wedges',
+      description: '50-100 yards',
+      totalShots: distanceWedges50to100.length,
+      strokesGained: distanceWedges50to100SG,
+      avgStrokesGained: distanceWedges50to100.length > 0 ? distanceWedges50to100SG / distanceWedges50to100.length : 0,
+    },
+    {
+      label: 'Putting',
+      description: '5-12 feet',
+      totalShots: putting5to12.length,
+      strokesGained: putting5to12SG,
+      avgStrokesGained: putting5to12.length > 0 ? putting5to12SG / putting5to12.length : 0,
+    },
+  ];
+  
+  return separators;
 }

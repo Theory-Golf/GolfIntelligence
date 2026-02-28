@@ -83,6 +83,15 @@ export interface HoleScore {
   shots: ProcessedShot[];
 }
 
+// Strokes Gained Separator by distance category
+export interface SGSeparator {
+  label: string;
+  description: string;
+  totalShots: number;
+  strokesGained: number;
+  avgStrokesGained: number;
+}
+
 // Tiger 5 summary metrics
 export interface Tiger5Metrics {
   totalStrokesGained: number;
@@ -106,6 +115,8 @@ export interface Tiger5Metrics {
   lowestRound: number;
   highestRound: number;
   avgScore: number;
+  // SG Separators by distance
+  sgSeparators: SGSeparator[];
 }
 
 // Root cause for Tiger 5 fails

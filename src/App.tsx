@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './styles/globals.css'
 import { useGolfData } from './hooks/useGolfData'
-import { TABS, Tiger5Metrics, Tiger5Fail, RootCauseMetrics, Tiger5FailDetails, RootCauseByFailTypeList, Tiger5TrendDataPoint } from './types/golf'
+import { TABS, Tiger5Metrics, Tiger5Fail, RootCauseMetrics, Tiger5FailDetails, RootCauseByFailTypeList, Tiger5TrendDataPoint, ProcessedShot } from './types/golf'
 import { getStrokeGainedColor, formatStrokesGained } from './styles/tokens'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { FilterBar } from './components/FilterBar'
@@ -107,8 +107,12 @@ function App() {
         {!isLoading && !error && activeTab === 'tiger5' && (
           <Tiger5View metrics={tiger5Metrics} lastUpdated={lastUpdated} />
         )}
+
+        {!isLoading && !error && activeTab === 'sg' && (
+          <StrokesGainedView metrics={tiger5Metrics} filteredShots={filteredShots} />
+        )}
         
-        {!isLoading && !error && activeTab !== 'tiger5' && (
+        {!isLoading && !error && activeTab !== 'tiger5' && activeTab !== 'sg' && (
           <div className="content">
             <div className="card">
               <h3>{TABS.find(t => t.id === activeTab)?.label}</h3>
@@ -196,23 +200,6 @@ function Tiger5View({ metrics }: { metrics: Tiger5Metrics; lastUpdated: Date | n
 
       {/* Potential Score Section - What if Tiger 5 fails reduced by 50% */}
       <PotentialScoreSection trendData={tiger5Trend} tiger5Fails={tiger5Fails} totalRounds={totalRounds} />
-    </div>
-  )
-}
-
-function CategoryCard({ category }: { category: { type: string; totalShots: number; avgStrokesGained: number } }) {
-  return (
-    <div className="card-stat">
-      <div className="label label-ash" style={{ marginBottom: '12px' }}>{category.type}</div>
-      <div 
-        className="value-stat" 
-        style={{ color: getStrokeGainedColor(category.avgStrokesGained) }}
-      >
-        {formatStrokesGained(category.avgStrokesGained)}
-      </div>
-      <div className="label" style={{ marginTop: '8px', color: 'var(--ash)' }}>
-        {category.totalShots} shots
-      </div>
     </div>
   )
 }
@@ -831,6 +818,223 @@ function PotentialScoreSection({
       </div>
     </div>
   );
+}
+
+/**
+ * Strokes Gained View - Hero card + stat cards for each shot type
+ * SG Driving, SG Approach, SG Putting, SG Short Game, SG Recovery + Other
+ */
+function StrokesGainedView({ metrics, filteredShots }: { metrics: Tiger5Metrics; filteredShots: ProcessedShot[] }) {
+  const { totalStrokesGained, byCategory, sgSeparators } = metrics;
+
+  // Calculate total holes played (unique round-hole combinations)
+  const uniqueHoles = new Set(filteredShots.map(s => `${s['Round ID']}-${s.Hole}`));
+  const totalHoles = uniqueHoles.size;
+  const sgPerHole = totalHoles > 0 ? totalStrokesGained / totalHoles : 0;
+
+  // Build category data for stat cards
+  // Map existing categories: Drive, Approach, Short Game, Putt
+  // For Recovery + Other: combine Recovery shots with any edge cases
+  const categoryData = byCategory.map(cat => ({
+    type: cat.type,
+    totalShots: cat.totalShots,
+    strokesGained: cat.strokesGained,
+    avgStrokesGained: cat.avgStrokesGained,
+  }));
+
+  // Find Recovery shots for "Recovery + Other"
+  const recoveryShots = filteredShots.filter(s => s.shotType === 'Recovery');
+  const recoverySG = recoveryShots.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+
+  // Build stat cards data
+  const statCards = [
+    {
+      id: 'driving',
+      label: 'Driving',
+      category: categoryData.find(c => c.type === 'Drive'),
+      accentColor: '',
+    },
+    {
+      id: 'approach',
+      label: 'Approach',
+      category: categoryData.find(c => c.type === 'Approach'),
+      accentColor: '',
+    },
+    {
+      id: 'putting',
+      label: 'Putting',
+      category: categoryData.find(c => c.type === 'Putt'),
+      accentColor: '',
+    },
+    {
+      id: 'shortgame',
+      label: 'Short Game',
+      category: categoryData.find(c => c.type === 'Short Game'),
+      accentColor: '',
+    },
+    {
+      id: 'recovery',
+      label: 'Recovery + Other',
+      category: {
+        type: 'Recovery + Other',
+        totalShots: recoveryShots.length,
+        strokesGained: recoverySG,
+        avgStrokesGained: recoveryShots.length > 0 ? recoverySG / recoveryShots.length : 0,
+      },
+      accentColor: '',
+    },
+  ];
+
+  // Find highest and lowest SG values for accent colors
+  const sgValues = statCards.map(card => card.category?.avgStrokesGained ?? 0);
+  const highestSG = Math.max(...sgValues);
+  const lowestSG = Math.min(...sgValues);
+
+  // Apply accent colors (green for highest, red for lowest)
+  statCards.forEach(card => {
+    const sg = card.category?.avgStrokesGained ?? 0;
+    if (sg === highestSG && highestSG !== lowestSG) {
+      card.accentColor = 'var(--under)'; // Green
+    } else if (sg === lowestSG && highestSG !== lowestSG) {
+      card.accentColor = 'var(--scarlet)'; // Red
+    }
+  });
+
+  return (
+    <div className="content">
+      {/* Section Heading */}
+      <h4 style={{ marginBottom: '16px', color: 'var(--ash)' }}>Strokes Gained</h4>
+
+      {/* Hero Card - Total SG */}
+      <div className="grid" style={{ gridTemplateColumns: '1fr', gap: '16px', maxWidth: '400px' }}>
+        <div className="card-hero is-flagship">
+          <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+            <div className="label" style={{ color: 'var(--scarlet)' }}>Total SG</div>
+            <div style={{ width: '6px', height: '6px', background: 'var(--scarlet)', borderRadius: '50%' }}></div>
+          </div>
+          <div className="value-hero" style={{ color: getStrokeGainedColor(totalStrokesGained) }}>
+            {formatStrokesGained(totalStrokesGained)}
+          </div>
+          <div className="flex justify-between" style={{ marginTop: '16px' }}>
+            <div>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>SG / Hole</div>
+              <div className="value-stat" style={{ color: getStrokeGainedColor(sgPerHole) }}>
+                {formatStrokesGained(sgPerHole)}
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Total Holes</div>
+              <div className="value-stat">{totalHoles}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stat Cards - SG by Shot Type */}
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginTop: '24px' }}>
+        {statCards.map((card) => {
+          const cat = card.category;
+          if (!cat || cat.totalShots === 0) return null;
+          
+          return (
+            <div 
+              key={card.id} 
+              className="card-stat"
+              style={{ 
+                borderLeft: card.accentColor ? `3px solid ${card.accentColor}` : '3px solid var(--pitch)',
+                background: card.accentColor ? 'var(--shadow)' : 'var(--shadow)',
+              }}
+            >
+              <div className="label" style={{ color: 'var(--ash)', marginBottom: '12px' }}>
+                {card.label}
+              </div>
+              <div 
+                className="value-stat" 
+                style={{ color: getStrokeGainedColor(cat.strokesGained) }}
+              >
+                {formatStrokesGained(cat.strokesGained)}
+              </div>
+              <div className="flex justify-between" style={{ marginTop: '12px' }}>
+                <div>
+                  <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>SG / Shot</div>
+                  <div 
+                    className="value-stat" 
+                    style={{ color: getStrokeGainedColor(cat.avgStrokesGained), fontSize: '12px' }}
+                  >
+                    {formatStrokesGained(cat.avgStrokesGained)}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Shots</div>
+                  <div className="value-stat" style={{ fontSize: '12px' }}>{cat.totalShots}</div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend for accents */}
+      <div style={{ marginTop: '16px', display: 'flex', gap: '24px', fontSize: '11px', color: 'var(--ash)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ width: '8px', height: '8px', background: 'var(--under)', borderRadius: '2px' }}></div>
+          <span>Highest SG</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ width: '8px', height: '8px', background: 'var(--scarlet)', borderRadius: '2px' }}></div>
+          <span>Lowest SG</span>
+        </div>
+      </div>
+
+      {/* SG Separators Section - Distance-based SG breakdown */}
+      <div style={{ marginTop: '32px' }}>
+        <h4 style={{ marginBottom: '16px', color: 'var(--ash)' }}>Strokes Gained Separators</h4>
+        <p style={{ fontSize: '12px', color: 'var(--ash)', marginBottom: '16px' }}>
+          SG breakdown by distance categories
+        </p>
+        
+        <div className="grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
+          {sgSeparators.map((separator) => {
+            return (
+              <div 
+                key={separator.label} 
+                className="card-stat"
+                style={{ borderLeft: '3px solid var(--pitch)' }}
+              >
+                <div className="label" style={{ color: 'var(--ash)', marginBottom: '4px', fontSize: '12px' }}>
+                  {separator.label}
+                </div>
+                <div className="label" style={{ color: 'var(--ash)', marginBottom: '12px', fontSize: '10px' }}>
+                  {separator.description}
+                </div>
+                <div 
+                  className="value-stat" 
+                  style={{ color: getStrokeGainedColor(separator.strokesGained) }}
+                >
+                  {formatStrokesGained(separator.strokesGained)}
+                </div>
+                <div className="flex justify-between" style={{ marginTop: '12px' }}>
+                  <div>
+                    <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>SG / Shot</div>
+                    <div 
+                      className="value-stat" 
+                      style={{ color: getStrokeGainedColor(separator.avgStrokesGained), fontSize: '12px' }}
+                    >
+                      {formatStrokesGained(separator.avgStrokesGained)}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Shots</div>
+                    <div className="value-stat" style={{ fontSize: '12px' }}>{separator.totalShots}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 /**
