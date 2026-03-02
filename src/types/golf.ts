@@ -266,6 +266,7 @@ export const TABS: Tab[] = [
   { id: 'approach', label: 'Approach', path: '/approach' },
   { id: 'shortgame', label: 'Short Game', path: '/short-game' },
   { id: 'putting', label: 'Putting', path: '/putting' },
+  { id: 'mental', label: 'Mental', path: '/mental' },
   { id: 'path', label: 'Player Path', path: '/player-path' },
   { id: 'coaching', label: 'Coaching', path: '/coaching' },
 ];
@@ -395,4 +396,177 @@ export interface ApproachMetrics {
   approachesUnder150: number;
   greenHitPctOver150: number;
   greenHitPctUnder150: number;
+}
+
+// Putting by distance bucket metrics
+export interface PuttingDistanceBucket {
+  label: string;           // e.g., "0-4", "5-8"
+  minDistance: number;     // inclusive
+  maxDistance: number;     // inclusive
+  // Core metrics
+  totalPutts: number;
+  totalStrokesGained: number;
+  // Make %
+  madePutts: number;
+  makePct: number;
+  // 3 putts (assigned to first putt's distance bucket)
+  threePutts: number;
+  // Speed Ratio (% long)
+  longPutts: number;
+  speedRatio: number;
+  // Only for 13-60 ft buckets
+  proximityMissed: number;     // avg ending distance for missed putts
+  goodLagPct: number;          // % <= 3 feet
+  poorLagPct: number;          // % >= 5 feet
+}
+
+// Putting metrics for the Putting Tab
+export interface PuttingMetrics {
+  // Total SG for all putts
+  totalSGPutting: number;
+  avgSGPutting: number;
+  totalPutts: number;
+  // Make % 0-4 feet
+  makePct0to4Ft: number;
+  made0to4Ft: number;
+  total0to4Ft: number;
+  // Total SG 5-12 feet
+  totalSG5to12Ft: number;
+  avgSG5to12Ft: number;
+  total5to12Ft: number;
+  // Poor Lag: # of first putts >20ft with end distance >=5ft
+  poorLagCount: number;
+  totalLagPutts: number;  // Total first putts >20ft for context
+  // Speed Rating: % of first putts >=20ft with Putt Result = Long
+  speedRating: number;
+  longPutts: number;
+  totalLongPutts: number;  // Total first putts >=20ft
+  // Putting by distance
+  puttingByDistance: PuttingDistanceBucket[];
+}
+
+// Lag putting distance distribution for charts
+export interface LagDistanceDistribution {
+  label: string;
+  count: number;
+  percentage: number;
+}
+
+// Lag putting metrics for the Lag Putting section
+export interface LagPuttingMetrics {
+  // Avg. Leave Distance - average ending distance for first putts >20 ft
+  avgLeaveDistance: number;
+  totalLagPutts: number;
+  // 3 putts distribution by first putt starting distance
+  threePuttsByStartDistance: LagDistanceDistribution[];
+  // Leave distance distribution for lag putts (>20 ft starting)
+  leaveDistanceDistribution: LagDistanceDistribution[];
+}
+
+// Hole outcome types for Scoring tab
+export type HoleOutcome = 'Eagle' | 'Birdie' | 'Par' | 'Bogey' | 'Double Bogey+';
+
+// Scoring metrics for a single par type (Par 3, 4, or 5)
+export interface ParScoringMetrics {
+  par: number;
+  totalHoles: number;
+  totalScore: number;
+  avgScore: number;
+  avgScoreVsPar: number;
+  totalStrokesGained: number;
+}
+
+// Scoring breakdown by hole outcome
+export interface HoleOutcomeData {
+  outcome: HoleOutcome;
+  count: number;
+  percentage: number;
+  scoreToPar: number;
+}
+
+// Complete Scoring tab metrics
+export interface ScoringMetrics {
+  // Overall hole outcome distribution (all holes)
+  holeOutcomes: HoleOutcomeData[];
+  totalHoles: number;
+  
+  // Par 3 metrics
+  par3: ParScoringMetrics;
+  // Par 4 metrics
+  par4: ParScoringMetrics;
+  // Par 5 metrics
+  par5: ParScoringMetrics;
+}
+
+// Bogey Rate by Par type
+export interface BogeyRateByPar {
+  par: number;  // 0 for overall, 3, 4, 5 for specific par
+  label: string;
+  totalHoles: number;
+  bogeyCount: number;
+  bogeyRate: number;
+}
+
+// Birdie Opportunity metrics
+export interface BirdieOpportunityMetrics {
+  opportunities: number;        // GIR with putt <= 20 feet
+  conversions: number;         // Birdies made from opportunities
+  conversionPct: number;        // conversions / opportunities * 100
+}
+
+// Root Cause for Scoring (Bogey/Double Bogey+)
+export interface ScoringRootCause {
+  penalties: number;
+  penaltiesSG: number;
+  driving: number;
+  drivingSG: number;
+  approach: number;
+  approachSG: number;
+  lagPutts: number;        // 20+ feet
+  lagPuttsSG: number;
+  makeablePutts: number;   // 0-20 feet
+  makeablePuttsSG: number;
+  shortGame: number;
+  shortGameSG: number;
+  recovery: number;
+  recoverySG: number;
+}
+
+// Complete Birdie and Bogey metrics
+export interface BirdieAndBogeyMetrics {
+  bogeyRates: BogeyRateByPar[];
+  birdieOpportunities: BirdieOpportunityMetrics;
+  bogeyRootCause: ScoringRootCause;
+  doubleBogeyPlusRootCause: ScoringRootCause;
+  totalBogeys: number;
+  totalDoubleBogeyPlus: number;
+}
+
+// Mental resilience metrics for the Mental Tab
+export interface MentalMetrics {
+  // Bounce Back: Par or better after Bogey+
+  bounceBackCount: number;
+  bounceBackTotal: number;  // Total Bogey+ holes (opportunities)
+  bounceBackPct: number;
+  
+  // Drop Off: Bogey+ after Birdie
+  dropOffCount: number;
+  dropOffTotal: number;  // Total Birdie holes (opportunities)
+  dropOffPct: number;
+  
+  // Gas Pedal: Birdie+ after Birdie+
+  gasPedalCount: number;
+  gasPedalTotal: number;  // Total Birdie+ holes (opportunities)
+  gasPedalPct: number;
+  
+  // Bogey Train: Bogey+ after Bogey+
+  bogeyTrainCount: number;
+  bogeyTrainTotal: number;  // Total Bogey+ holes (opportunities)
+  bogeyTrainPct: number;
+  
+  // Drive after Tiger 5 Fail
+  driveAfterT5FailCount: number;  // Number of drives after T5 fail
+  driveAfterT5FailSG: number;  // Total SG on those drives
+  avgDriveSGBenchmark: number;  // Benchmark average SG per drive
+  driveAfterT5FailVsBenchmark: number;  // Difference from benchmark
 }

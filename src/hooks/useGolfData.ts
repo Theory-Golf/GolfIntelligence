@@ -4,9 +4,9 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Papa from 'papaparse';
-import type { RawShot, ProcessedShot, Tiger5Metrics, RoundSummary, FilterState, FilterOptions, DrivingMetrics, DrivingAnalysis, ApproachMetrics, ApproachDistanceBucket } from '../types/golf';
+import type { RawShot, ProcessedShot, Tiger5Metrics, RoundSummary, FilterState, FilterOptions, DrivingMetrics, DrivingAnalysis, ApproachMetrics, ApproachDistanceBucket, PuttingMetrics, LagPuttingMetrics, ScoringMetrics, MentalMetrics, BirdieAndBogeyMetrics } from '../types/golf';
 import type { BenchmarkType } from '../data/benchmarks';
-import { processShots, calculateTiger5Metrics, getRoundSummaries, calculateDrivingMetrics, calculateDrivingAnalysis, calculateApproachMetrics, calculateApproachByDistance } from '../utils/calculations';
+import { processShots, calculateTiger5Metrics, getRoundSummaries, calculateDrivingMetrics, calculateDrivingAnalysis, calculateApproachMetrics, calculateApproachByDistance, calculatePuttingMetrics, calculateLagPuttingMetrics, calculateScoringMetrics, calculateMentalMetrics, calculateBirdieAndBogeyMetrics } from '../utils/calculations';
 
 // Google Sheet CSV URL - published to web
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6xTTDWTSzaRvoiACi2PT-l7uqvwcZwdlIZsCGunz-8t-227TBihATnDfUoi5VzDqhOIGcAbJViw9O/pub?output=csv';
@@ -16,10 +16,15 @@ interface UseGolfDataResult {
   processedShots: ProcessedShot[];
   filteredShots: ProcessedShot[];
   tiger5Metrics: Tiger5Metrics;
+  scoringMetrics: ScoringMetrics;
+  birdieAndBogeyMetrics: BirdieAndBogeyMetrics;
   drivingMetrics: DrivingMetrics;
   drivingAnalysis: DrivingAnalysis;
   approachMetrics: ApproachMetrics;
   approachByDistance: ApproachDistanceBucket[];
+  puttingMetrics: PuttingMetrics;
+  lagPuttingMetrics: LagPuttingMetrics;
+  mentalMetrics: MentalMetrics;
   roundSummaries: RoundSummary[];
   filterOptions: FilterOptions;
   cascadingFilterOptions: FilterOptions;
@@ -242,6 +247,16 @@ export function useGolfData(): UseGolfDataResult {
     return calculateTiger5Metrics(filteredShots);
   }, [filteredShots, benchmark]);
 
+  // Calculate scoring metrics from filtered shots
+  const scoringMetrics = useMemo(() => {
+    return calculateScoringMetrics(filteredShots);
+  }, [filteredShots]);
+
+  // Calculate birdie and bogey metrics from filtered shots
+  const birdieAndBogeyMetrics = useMemo(() => {
+    return calculateBirdieAndBogeyMetrics(filteredShots);
+  }, [filteredShots]);
+
   // Calculate driving metrics from filtered shots
   const drivingMetrics = useMemo(() => {
     return calculateDrivingMetrics(filteredShots);
@@ -262,6 +277,21 @@ export function useGolfData(): UseGolfDataResult {
     return calculateApproachByDistance(filteredShots);
   }, [filteredShots]);
 
+  // Calculate putting metrics from filtered shots
+  const puttingMetrics = useMemo(() => {
+    return calculatePuttingMetrics(filteredShots);
+  }, [filteredShots]);
+
+  // Calculate lag putting metrics from filtered shots
+  const lagPuttingMetrics = useMemo(() => {
+    return calculateLagPuttingMetrics(filteredShots);
+  }, [filteredShots]);
+
+  // Calculate mental metrics from filtered shots
+  const mentalMetrics = useMemo(() => {
+    return calculateMentalMetrics(filteredShots, benchmark);
+  }, [filteredShots, benchmark]);
+
   // Get round summaries from filtered shots
   const roundSummaries = useMemo(() => {
     return getRoundSummaries(filteredShots);
@@ -277,10 +307,15 @@ export function useGolfData(): UseGolfDataResult {
     processedShots,
     filteredShots,
     tiger5Metrics,
+    scoringMetrics,
+    birdieAndBogeyMetrics,
     drivingMetrics,
     drivingAnalysis,
     approachMetrics,
     approachByDistance,
+    puttingMetrics,
+    lagPuttingMetrics,
+    mentalMetrics,
     roundSummaries,
     filterOptions,
     cascadingFilterOptions,

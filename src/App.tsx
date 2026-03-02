@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import './styles/globals.css'
 import { useGolfData } from './hooks/useGolfData'
-import { TABS, Tiger5Metrics, Tiger5Fail, RootCauseMetrics, Tiger5FailDetails, RootCauseByFailTypeList, Tiger5TrendDataPoint, ProcessedShot, DrivingMetrics, DrivingAnalysis, ProblemDriveMetrics, ApproachMetrics, ApproachDistanceBucket } from './types/golf'
+import { TABS, Tiger5Metrics, Tiger5Fail, RootCauseMetrics, Tiger5FailDetails, RootCauseByFailTypeList, Tiger5TrendDataPoint, ProcessedShot, DrivingMetrics, DrivingAnalysis, ProblemDriveMetrics, ApproachMetrics, ApproachDistanceBucket, PuttingMetrics, LagPuttingMetrics, ScoringMetrics, HoleOutcome, MentalMetrics, BirdieAndBogeyMetrics } from './types/golf'
 import { getStrokeGainedColor, getShotSGColor, formatStrokesGained, chartColors } from './styles/tokens'
 import { calculateProblemDriveMetrics } from './utils/calculations'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart } from 'recharts'
@@ -16,10 +16,15 @@ function App() {
   const { 
     filteredShots, 
     tiger5Metrics, 
+    scoringMetrics,
+    birdieAndBogeyMetrics,
     drivingMetrics,
     drivingAnalysis,
     approachMetrics,
     approachByDistance,
+    puttingMetrics,
+    lagPuttingMetrics,
+    mentalMetrics,
     isLoading, 
     error, 
     lastUpdated,
@@ -125,8 +130,20 @@ function App() {
         {!isLoading && !error && activeTab === 'approach' && (
           <ApproachView metrics={approachMetrics} approachByDistance={approachByDistance} filteredShots={filteredShots} />
         )}
+
+        {!isLoading && !error && activeTab === 'putting' && (
+          <PuttingView metrics={puttingMetrics} lagMetrics={lagPuttingMetrics} filteredShots={filteredShots} />
+        )}
+
+        {!isLoading && !error && activeTab === 'scoring' && (
+          <ScoringView metrics={scoringMetrics} birdieAndBogeyMetrics={birdieAndBogeyMetrics} />
+        )}
+
+        {!isLoading && !error && activeTab === 'mental' && (
+          <MentalView metrics={mentalMetrics} />
+        )}
         
-        {!isLoading && !error && activeTab !== 'tiger5' && activeTab !== 'sg' && activeTab !== 'driving' && activeTab !== 'approach' && (
+        {!isLoading && !error && activeTab !== 'tiger5' && activeTab !== 'sg' && activeTab !== 'driving' && activeTab !== 'approach' && activeTab !== 'putting' && activeTab !== 'scoring' && activeTab !== 'mental' && (
           <div className="content">
             <div className="card">
               <h3>{TABS.find(t => t.id === activeTab)?.label}</h3>
@@ -2324,6 +2341,1039 @@ function ApproachView({ metrics, approachByDistance, filteredShots }: { metrics:
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+/**
+ * Putting View - Hero cards for putting metrics
+ * - Total SG Putting
+ * - Make % 0-4 ft
+ * - Total SG 5-12 feet
+ * - Poor Lag (count)
+ * - Speed Rating (%)
+ */
+function PuttingView({ metrics, lagMetrics, filteredShots }: { metrics: PuttingMetrics; lagMetrics: LagPuttingMetrics; filteredShots: ProcessedShot[] }) {
+  const { 
+    totalSGPutting, 
+    avgSGPutting, 
+    totalPutts,
+    makePct0to4Ft, 
+    made0to4Ft, 
+    total0to4Ft,
+    totalSG5to12Ft, 
+    avgSG5to12Ft, 
+    total5to12Ft,
+    poorLagCount,
+    totalLagPutts,
+    speedRating,
+    longPutts,
+    totalLongPutts,
+    puttingByDistance,
+  } = metrics;
+
+  // Helper function for make % color (higher is better)
+  const getMakePctColor = (pct: number): string => {
+    if (pct >= 90) return 'var(--under)';     // Green - excellent
+    if (pct >= 80) return 'var(--bogey)';     // Yellow - average
+    return 'var(--double)';                    // Red - needs work
+  };
+
+  // Helper for speed rating color (lower is better for speed rating = less long putts)
+  const getSpeedRatingColor = (pct: number): string => {
+    if (pct <= 10) return 'var(--under)';    // Green - rarely goes long
+    if (pct <= 20) return 'var(--bogey)';     // Yellow - sometimes goes long
+    return 'var(--double)';                    // Red - too often goes long
+  };
+
+  // Helper for Good Lag % color (higher is better)
+  const getGoodLagColor = (pct: number): string => {
+    if (pct >= 70) return 'var(--under)';    // Green - excellent
+    if (pct >= 50) return 'var(--bogey)';     // Yellow - average
+    return 'var(--double)';                    // Red - needs work
+  };
+
+  // Helper for Poor Lag % color (lower is better)
+  const getPoorLagColor = (pct: number): string => {
+    if (pct <= 10) return 'var(--under)';    // Green - excellent
+    if (pct <= 25) return 'var(--bogey)';     // Yellow - average
+    return 'var(--double)';                    // Red - needs work
+  };
+
+  return (
+    <div className="content">
+      {/* Section Heading */}
+      <h4 style={{ marginBottom: '16px', color: 'var(--ash)' }}>Putting Performance</h4>
+      
+      {/* Hero Cards - 5 metrics in a grid */}
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
+        
+        {/* Card 1: Total SG Putting */}
+        <div className="card-hero is-flagship">
+          <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+            <div className="label" style={{ color: 'var(--scarlet)' }}>Total SG Putting</div>
+            <div style={{ width: '6px', height: '6px', background: 'var(--scarlet)', borderRadius: '50%' }}></div>
+          </div>
+          <div className="value-hero" style={{ color: getStrokeGainedColor(totalSGPutting) }}>
+            {formatStrokesGained(totalSGPutting)}
+          </div>
+          <div className="flex justify-between" style={{ marginTop: '16px' }}>
+            <div>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>SG / Putt</div>
+              <div className="value-stat" style={{ color: getStrokeGainedColor(avgSGPutting), fontSize: '12px' }}>
+                {formatStrokesGained(avgSGPutting)}
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Total Putts</div>
+              <div className="value-stat" style={{ fontSize: '12px' }}>{totalPutts}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Make % 0-4 ft */}
+        <div className="card-hero">
+          <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+            <div className="label" style={{ color: 'var(--ash)' }}>Make % 0-4 ft</div>
+          </div>
+          <div className="value-hero" style={{ color: getMakePctColor(makePct0to4Ft) }}>
+            {makePct0to4Ft.toFixed(1)}%
+          </div>
+          <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
+            <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>Made</div>
+            <div className="value-stat">
+              {made0to4Ft} / {total0to4Ft}
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Total SG 5-12 ft */}
+        <div className="card-hero">
+          <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+            <div className="label" style={{ color: 'var(--ash)' }}>SG 5-12 ft</div>
+          </div>
+          <div className="value-hero" style={{ color: getStrokeGainedColor(totalSG5to12Ft) }}>
+            {formatStrokesGained(totalSG5to12Ft)}
+          </div>
+          <div className="flex justify-between" style={{ marginTop: '16px' }}>
+            <div>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>SG / Putt</div>
+              <div className="value-stat" style={{ color: getStrokeGainedColor(avgSG5to12Ft), fontSize: '12px' }}>
+                {formatStrokesGained(avgSG5to12Ft)}
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Putts</div>
+              <div className="value-stat" style={{ fontSize: '12px' }}>{total5to12Ft}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Poor Lag */}
+        <div className="card-hero">
+          <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+            <div className="label" style={{ color: 'var(--ash)' }}>Poor Lag</div>
+          </div>
+          <div className="value-hero" style={{ color: poorLagCount > 0 ? 'var(--double)' : 'var(--under)' }}>
+            {poorLagCount}
+          </div>
+          <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
+            <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>Total Lag Putts</div>
+            <div className="value-stat">
+              {totalLagPutts}
+            </div>
+          </div>
+        </div>
+
+        {/* Card 5: Speed Rating */}
+        <div className="card-hero">
+          <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+            <div className="label" style={{ color: 'var(--ash)' }}>Speed Rating</div>
+          </div>
+          <div className="value-hero" style={{ color: getSpeedRatingColor(speedRating) }}>
+            {speedRating.toFixed(1)}%
+          </div>
+          <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
+            <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>Long</div>
+            <div className="value-stat">
+              {longPutts} / {totalLongPutts}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Legend for metrics */}
+      <div style={{ marginTop: '24px', display: 'flex', gap: '32px', fontSize: '12px', color: 'var(--ash)' }}>
+        <div>
+          <strong>Make %:</strong> Higher is better (90%+ = green, 80-90% = yellow, &lt;80% = red)
+        </div>
+        <div>
+          <strong>Speed Rating:</strong> Lower is better (% of lag putts going long)
+        </div>
+        <div>
+          <strong>Poor Lag:</strong> First putts &gt;20ft ending &ge;5ft from hole
+        </div>
+      </div>
+
+      {/* Putting By Distance Table */}
+      {puttingByDistance.length > 0 && (
+        <div style={{ marginTop: '32px' }}>
+          <h4 style={{ marginBottom: '16px', color: 'var(--ash)' }}>Putting by Distance</h4>
+          <div style={{ background: 'var(--charcoal)', borderRadius: '4px', overflow: 'hidden' }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', tableLayout: 'fixed' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--pitch)' }}>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', color: 'var(--ash)', fontWeight: 600, background: 'var(--obsidian)', width: '140px' }}>
+                      Distance (ft)
+                    </th>
+                    {puttingByDistance.map(bucket => (
+                      <th key={bucket.label} style={{ padding: '10px 8px', textAlign: 'center', color: 'var(--ash)', fontWeight: 600, background: 'var(--obsidian)', minWidth: '70px' }}>
+                        {bucket.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Row 1: # of Putts */}
+                  <tr style={{ borderBottom: '1px solid var(--pitch)' }}>
+                    <td style={{ padding: '8px 12px', color: 'var(--chalk)', fontWeight: 500, background: 'var(--obsidian)' }}>
+                      # of Putts
+                    </td>
+                    {puttingByDistance.map(bucket => (
+                      <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: 'var(--chalk)', fontFamily: 'var(--font-mono)' }}>
+                        {bucket.totalPutts > 0 ? bucket.totalPutts : ''}
+                      </td>
+                    ))}
+                  </tr>
+                  {/* Row 2: Total Strokes Gained */}
+                  <tr style={{ borderBottom: '1px solid var(--pitch)' }}>
+                    <td style={{ padding: '8px 12px', color: 'var(--chalk)', fontWeight: 500, background: 'var(--obsidian)' }}>
+                      Total SG
+                    </td>
+                    {puttingByDistance.map(bucket => (
+                      <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: getStrokeGainedColor(bucket.totalStrokesGained), fontFamily: 'var(--font-mono)' }}>
+                        {bucket.totalPutts > 0 ? formatStrokesGained(bucket.totalStrokesGained) : ''}
+                      </td>
+                    ))}
+                  </tr>
+                  {/* Row 3: Make % */}
+                  <tr style={{ borderBottom: '1px solid var(--pitch)' }}>
+                    <td style={{ padding: '8px 12px', color: 'var(--chalk)', fontWeight: 500, background: 'var(--obsidian)' }}>
+                      Make %
+                    </td>
+                    {puttingByDistance.map(bucket => (
+                      <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: bucket.totalPutts > 0 ? getMakePctColor(bucket.makePct) : 'var(--ash)', fontFamily: 'var(--font-mono)' }}>
+                        {bucket.totalPutts > 0 ? `${bucket.makePct.toFixed(1)}%` : ''}
+                      </td>
+                    ))}
+                  </tr>
+                  {/* Row 4: # of 3 Putts */}
+                  <tr style={{ borderBottom: '1px solid var(--pitch)' }}>
+                    <td style={{ padding: '8px 12px', color: 'var(--chalk)', fontWeight: 500, background: 'var(--obsidian)' }}>
+                      # of 3 Putts
+                    </td>
+                    {puttingByDistance.map(bucket => (
+                      <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: bucket.threePutts > 0 ? 'var(--double)' : 'var(--chalk)', fontFamily: 'var(--font-mono)' }}>
+                        {bucket.threePutts > 0 ? bucket.threePutts : ''}
+                      </td>
+                    ))}
+                  </tr>
+                  {/* Row 5: Speed Ratio (% Long) */}
+                  <tr style={{ borderBottom: '1px solid var(--pitch)' }}>
+                    <td style={{ padding: '8px 12px', color: 'var(--chalk)', fontWeight: 500, background: 'var(--obsidian)' }}>
+                      Speed Ratio (% Long)
+                    </td>
+                    {puttingByDistance.map(bucket => (
+                      <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: bucket.totalPutts > 0 ? getSpeedRatingColor(bucket.speedRatio) : 'var(--ash)', fontFamily: 'var(--font-mono)' }}>
+                        {bucket.totalPutts > 0 ? `${bucket.speedRatio.toFixed(1)}%` : ''}
+                      </td>
+                    ))}
+                  </tr>
+                  {/* Row 6: Proximity of Missed Putts - only for 13-60 ft buckets */}
+                  <tr style={{ borderBottom: '1px solid var(--pitch)' }}>
+                    <td style={{ padding: '8px 12px', color: 'var(--chalk)', fontWeight: 500, background: 'var(--obsidian)' }}>
+                      Proximity of Missed Putts
+                    </td>
+                    {puttingByDistance.map(bucket => {
+                      const isLagBucket = bucket.minDistance >= 13;
+                      return (
+                        <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: isLagBucket && bucket.proximityMissed > 0 ? 'var(--chalk)' : 'var(--ash)', fontFamily: 'var(--font-mono)' }}>
+                          {isLagBucket && bucket.proximityMissed > 0 ? `${bucket.proximityMissed.toFixed(1)} ft` : ''}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  {/* Row 7: Good Lag % - only for 13-60 ft buckets */}
+                  <tr style={{ borderBottom: '1px solid var(--pitch)' }}>
+                    <td style={{ padding: '8px 12px', color: 'var(--chalk)', fontWeight: 500, background: 'var(--obsidian)' }}>
+                      Good Lag %
+                    </td>
+                    {puttingByDistance.map(bucket => {
+                      const isLagBucket = bucket.minDistance >= 13;
+                      return (
+                        <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: isLagBucket && bucket.goodLagPct > 0 ? getGoodLagColor(bucket.goodLagPct) : 'var(--ash)', fontFamily: 'var(--font-mono)' }}>
+                          {isLagBucket && bucket.goodLagPct > 0 ? `${bucket.goodLagPct.toFixed(1)}%` : ''}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  {/* Row 8: Poor Lag % - only for 13-60 ft buckets */}
+                  <tr>
+                    <td style={{ padding: '8px 12px', color: 'var(--chalk)', fontWeight: 500, background: 'var(--obsidian)' }}>
+                      Poor Lag %
+                    </td>
+                    {puttingByDistance.map(bucket => {
+                      const isLagBucket = bucket.minDistance >= 13;
+                      return (
+                        <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: isLagBucket && bucket.poorLagPct > 0 ? getPoorLagColor(bucket.poorLagPct) : 'var(--ash)', fontFamily: 'var(--font-mono)' }}>
+                          {isLagBucket && bucket.poorLagPct > 0 ? `${bucket.poorLagPct.toFixed(1)}%` : ''}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          {/* Legend for lag metrics */}
+          <div style={{ marginTop: '16px', display: 'flex', gap: '32px', fontSize: '11px', color: 'var(--ash)' }}>
+            <div>
+              <strong>Good Lag %:</strong> Higher is better (% of putts &le;3ft)
+            </div>
+            <div>
+              <strong>Poor Lag %:</strong> Lower is better (% of putts &ge;5ft)
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lag Putting Section */}
+      <LagPuttingSection metrics={lagMetrics} />
+
+      {/* All Putts Table - Collapsible */}
+      <PuttsTableSection shots={filteredShots} />
+    </div>
+  );
+}
+
+/**
+ * Lag Putting Section - Card and two donut charts for lag putts (>20 ft)
+ */
+function LagPuttingSection({ metrics }: { metrics: LagPuttingMetrics }) {
+  const { avgLeaveDistance, totalLagPutts, threePuttsByStartDistance, leaveDistanceDistribution } = metrics;
+
+  // Format data for donut charts
+  const threePuttsData = threePuttsByStartDistance.map(item => ({
+    name: item.label,
+    value: item.count,
+    percentage: item.percentage,
+  }));
+
+  const leaveDistanceData = leaveDistanceDistribution.map(item => ({
+    name: item.label,
+    value: item.count,
+    percentage: item.percentage,
+  }));
+
+  // Custom tooltip for donut charts
+  const DonutTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: typeof threePuttsData[0] }> }) => {
+    if (!active || !payload || !payload.length) return null;
+    const data = payload[0].payload;
+    return (
+      <div style={{ 
+        background: 'var(--obsidian)', 
+        border: '1px solid var(--pitch)', 
+        padding: '8px 12px', 
+        borderRadius: '4px',
+        fontSize: '12px',
+      }}>
+        <div style={{ color: 'var(--chalk)', fontWeight: 600 }}>{data.name} ft</div>
+        <div style={{ color: 'var(--ash)' }}>
+          {data.value} putts ({data.percentage.toFixed(1)}%)
+        </div>
+      </div>
+    );
+  };
+
+  // Helper for leave distance color (lower is better)
+  const getLeaveDistanceColor = (label: string): string => {
+    if (label === '0-4') return 'var(--under)';
+    if (label === '5-8') return 'var(--bogey)';
+    if (label === '9-12') return 'var(--double)';
+    return 'var(--scarlet)';
+  };
+
+  return (
+    <div style={{ marginTop: '40px' }}>
+      {/* Section Heading */}
+      <h4 style={{ marginBottom: '16px', color: 'var(--ash)' }}>Lag Putting</h4>
+      
+      {/* Card and First Chart Row */}
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+        
+        {/* Card: Avg. Leave Distance */}
+        <div className="card-hero">
+          <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+            <div className="label" style={{ color: 'var(--ash)' }}>Avg. Leave Distance</div>
+          </div>
+          <div className="value-hero" style={{ color: avgLeaveDistance <= 4 ? 'var(--under)' : avgLeaveDistance <= 8 ? 'var(--bogey)' : 'var(--double)' }}>
+            {totalLagPutts > 0 ? `${avgLeaveDistance.toFixed(1)} ft` : '-'}
+          </div>
+          <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
+            <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>Total Lag Putts</div>
+            <div className="value-stat">
+              {totalLagPutts}
+            </div>
+          </div>
+        </div>
+
+        {/* Chart 1: # 3 Putts - First Putt Starting Distance */}
+        <div className="card-hero">
+          <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+            <div className="label" style={{ color: 'var(--ash)' }}># 3 Putts: First Putt Starting Distance</div>
+          </div>
+          {threePuttsData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={threePuttsData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={2}
+                  dataKey="value"
+                  nameKey="name"
+                >
+                  {threePuttsData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
+                  ))}
+                </Pie>
+                <Tooltip content={<DonutTooltip />} />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value) => <span style={{ color: 'var(--ash)', fontSize: '11px' }}>{value} ft</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ash)' }}>
+              No 3-putt data
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Chart 2: Leave Distance Distribution */}
+      <div style={{ marginTop: '16px' }}>
+        <div className="card-hero">
+          <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+            <div className="label" style={{ color: 'var(--ash)' }}>Leave Distance Distribution - Lag Putts</div>
+          </div>
+          {leaveDistanceData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={leaveDistanceData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={2}
+                  dataKey="value"
+                  nameKey="name"
+                >
+                  {leaveDistanceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={getLeaveDistanceColor(entry.name)} />
+                  ))}
+                </Pie>
+                <Tooltip content={<DonutTooltip />} />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value) => <span style={{ color: 'var(--ash)', fontSize: '11px' }}>{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ash)' }}>
+              No lag putt data
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Legend for leave distance chart */}
+      <div style={{ marginTop: '16px', display: 'flex', gap: '32px', fontSize: '11px', color: 'var(--ash)' }}>
+        <div>
+          <strong>Leave Distance:</strong> Lower is better (0-4 ft = green, 5-8 ft = yellow, 9-12 ft = red, 13+ ft = scarlet)
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Putts Table Section - Collapsible table showing all putts
+ * Columns: Hole, Starting Distance, Ending Distance, Putt Result, SG
+ * Grouped by round (date + course), sorted by hole within each round
+ */
+function PuttsTableSection({ shots }: { shots: ProcessedShot[] }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Filter for putts only
+  const putts = shots.filter(shot => shot.shotType === 'Putt');
+
+  // Group putts by round (date + course)
+  const puttsByRound = putts.reduce((acc, putt) => {
+    const key = `${putt.Date}|${putt.Course}`;
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(putt);
+    return acc;
+  }, {} as Record<string, ProcessedShot[]>);
+
+  // Sort rounds by date (most recent first)
+  const sortedRounds = Object.entries(puttsByRound).sort((a, b) => {
+    const dateA = a[0].split('|')[0];
+    const dateB = b[0].split('|')[0];
+    return dateB.localeCompare(dateA);
+  });
+
+  if (putts.length === 0) {
+    return null;
+  }
+
+  return (
+    <div style={{ marginTop: '32px' }}>
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+          padding: '12px 16px',
+          background: 'var(--charcoal)',
+          border: '1px solid var(--ash)',
+          borderRadius: '4px',
+          color: 'var(--chalk)',
+          cursor: 'pointer',
+          fontSize: '14px',
+        }}
+      >
+        <span style={{ fontWeight: 600 }}>All Putts</span>
+        <span style={{ fontSize: '12px', color: 'var(--ash)' }}>
+          {putts.length} putts • {isExpanded ? '▲' : '▼'}
+        </span>
+      </button>
+
+      {isExpanded && (
+        <div style={{ marginTop: '16px' }}>
+          {sortedRounds.map(([roundKey, roundPutts]) => {
+            const [dateStr, courseStr] = roundKey.split('|');
+
+            return (
+              <div key={roundKey} style={{ marginBottom: '16px', padding: '12px', background: 'var(--charcoal)', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', gap: '24px', marginBottom: '12px', fontSize: '12px', color: 'var(--chalk)' }}>
+                  <span><strong>Date:</strong> {dateStr}</span>
+                  <span><strong>Course:</strong> {courseStr}</span>
+                  <span><strong>Putts:</strong> {roundPutts.length}</span>
+                </div>
+                <table style={{ width: '100%', fontSize: '11px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--ash)' }}>
+                      <th style={{ textAlign: 'center', padding: '6px', color: 'var(--ash)', width: '10%' }}>Hole</th>
+                      <th style={{ textAlign: 'center', padding: '6px', color: 'var(--ash)', width: '14%' }}>Start Dist</th>
+                      <th style={{ textAlign: 'center', padding: '6px', color: 'var(--ash)', width: '14%' }}>End Dist</th>
+                      <th style={{ textAlign: 'center', padding: '6px', color: 'var(--ash)', width: '14%' }}>Result</th>
+                      <th style={{ textAlign: 'center', padding: '6px', color: 'var(--ash)', width: '14%' }}>SG</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {roundPutts
+                      .sort((a, b) => a.Hole - b.Hole)
+                      .map((putt, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid var(--dark)' }}>
+                          <td style={{ padding: '6px', textAlign: 'center', color: 'var(--chalk)' }}>{putt.Hole}</td>
+                          <td style={{ padding: '6px', textAlign: 'center', color: 'var(--chalk)', fontFamily: 'var(--font-mono)' }}>
+                            {putt['Starting Distance']}
+                          </td>
+                          <td style={{ padding: '6px', textAlign: 'center', color: 'var(--chalk)', fontFamily: 'var(--font-mono)' }}>
+                            {putt['Ending Distance']}
+                          </td>
+                          <td style={{ 
+                            padding: '6px', 
+                            textAlign: 'center', 
+                            color: putt['Putt Result'] === 'Made' ? 'var(--under)' : putt['Putt Result'] === 'Long' ? 'var(--double)' : 'var(--chalk)',
+                            fontWeight: putt['Putt Result'] === 'Made' ? 600 : 400
+                          }}>
+                            {putt['Putt Result'] || '-'}
+                          </td>
+                          <td style={{ padding: '6px', textAlign: 'center', color: getShotSGColor(putt.calculatedStrokesGained), fontFamily: 'var(--font-mono)' }}>
+                            {formatStrokesGained(putt.calculatedStrokesGained)}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Scoring View - Hole outcome distribution and par-specific scoring metrics
+ * - Donut chart: Hole outcome distribution (Eagle, Birdie, Par, Bogey, Double Bogey+)
+ * - Three cards: Par 3, Par 4, Par 5 metrics
+ */
+function ScoringView({ metrics, birdieAndBogeyMetrics }: { metrics: ScoringMetrics; birdieAndBogeyMetrics: BirdieAndBogeyMetrics }) {
+  const { holeOutcomes, totalHoles, par3, par4, par5 } = metrics;
+  const { bogeyRates, birdieOpportunities, bogeyRootCause, doubleBogeyPlusRootCause, totalBogeys, totalDoubleBogeyPlus } = birdieAndBogeyMetrics;
+
+  // Colors for hole outcomes - using semantic scoring colors
+  const OUTCOME_COLORS: Record<HoleOutcome, string> = {
+    'Eagle': '#00C07A',       // Green/Under par
+    'Birdie': '#52D9A0',      // Mint/Gain
+    'Par': '#8A8580',         // Gray/Even
+    'Bogey': '#F59520',        // Amber/Bogey
+    'Double Bogey+': '#E8202A', // Red/Over par
+  };
+
+  // Format data for donut chart
+  const donutData = holeOutcomes.map(outcome => ({
+    name: outcome.outcome,
+    value: outcome.count,
+    percentage: outcome.percentage.toFixed(1),
+    scoreToPar: outcome.scoreToPar,
+  }));
+
+  // Custom tooltip for donut chart
+  const DonutTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: typeof donutData[0] }> }) => {
+    if (!active || !payload || !payload.length) return null;
+    const data = payload[0].payload;
+    return (
+      <div style={{
+        background: 'var(--court)',
+        border: '1px solid var(--scarlet)',
+        borderRadius: '4px',
+        padding: '12px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+      }}>
+        <div style={{ color: 'var(--chalk)', fontWeight: 600, marginBottom: '8px' }}>
+          {data.name}
+        </div>
+        <div style={{ fontSize: '12px', color: 'var(--cement)', marginBottom: '4px' }}>
+          Count: <span style={{ color: 'var(--chalk)' }}>{data.value}</span>
+        </div>
+        <div style={{ fontSize: '12px', color: 'var(--cement)' }}>
+          Percentage: <span style={{ color: 'var(--chalk)' }}>{data.percentage}%</span>
+        </div>
+      </div>
+    );
+  };
+
+  // Par card data
+  const parCards = [
+    { label: 'Par 3', data: par3, color: '#3D8EF0' },
+    { label: 'Par 4', data: par4, color: '#A855F7' },
+    { label: 'Par 5', data: par5, color: '#06C8E0' },
+  ];
+
+  return (
+    <div className="content">
+      {/* Section Heading */}
+      <h4 style={{ marginBottom: '16px', color: 'var(--ash)' }}>Scoring by Par</h4>
+
+      {/* Hero Cards - Par 3, Par 4, Par 5 */}
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+        {parCards.map((card) => (
+          <div 
+            key={card.label} 
+            className="card-hero"
+            style={{ borderLeft: `4px solid ${card.color}` }}
+          >
+            <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '14px' }}>{card.label}</div>
+              <div style={{ fontSize: '12px', color: 'var(--ash)' }}>{card.data.totalHoles} holes</div>
+            </div>
+            
+            {/* Main Value: Avg Score */}
+            <div className="value-hero" style={{ color: 'var(--chalk)', fontSize: '36px' }}>
+              {card.data.totalHoles > 0 ? card.data.avgScore.toFixed(1) : '-'}
+            </div>
+            
+            {/* Bottom row: Total SG and Avg vs Par */}
+            <div className="flex justify-between" style={{ marginTop: '16px' }}>
+              <div>
+                <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Total SG</div>
+                <div className="value-stat" style={{ color: getStrokeGainedColor(card.data.totalStrokesGained) }}>
+                  {card.data.totalHoles > 0 ? formatStrokesGained(card.data.totalStrokesGained) : '-'}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Avg vs Par</div>
+                <div className="value-stat" style={{ 
+                  color: card.data.totalHoles > 0 
+                    ? (card.data.avgScoreVsPar < 0 ? 'var(--under)' : card.data.avgScoreVsPar > 0 ? 'var(--double)' : 'var(--ash)')
+                    : 'var(--ash)'
+                }}>
+                  {card.data.totalHoles > 0 
+                    ? (card.data.avgScoreVsPar > 0 ? '+' : '') + card.data.avgScoreVsPar.toFixed(1)
+                    : '-'}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Section Heading for Distribution */}
+      <h4 style={{ marginBottom: '16px', color: 'var(--ash)' }}>Hole Outcome Distribution</h4>
+
+      {/* Donut Chart - Hole Outcome Distribution */}
+      {holeOutcomes.length > 0 && (
+        <div style={{ background: 'var(--charcoal)', padding: '16px', borderRadius: '4px' }}>
+          <p style={{ fontSize: '11px', color: 'var(--ash)', marginBottom: '16px' }}>
+            Distribution of scores vs par across {totalHoles} holes
+          </p>
+          <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+              <Pie
+                data={donutData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={100}
+                paddingAngle={2}
+                dataKey="value"
+                nameKey="name"
+                label={({ percentage }) => `${percentage}%`}
+                labelLine={false}
+              >
+                {donutData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={OUTCOME_COLORS[entry.name as HoleOutcome] || '#6B7280'}
+                    stroke="var(--charcoal)"
+                    strokeWidth={2}
+                  />
+                ))}
+              </Pie>
+              {/* Center text showing total holes */}
+              <text
+                x="50%"
+                y="50%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="var(--chalk)"
+                style={{ fontSize: '24px', fontWeight: 'bold' }}
+              >
+                {totalHoles}
+              </text>
+              <Tooltip content={<DonutTooltip />} />
+              <Legend 
+                layout="vertical" 
+                align="right" 
+                verticalAlign="middle"
+                formatter={(value) => <span style={{ color: 'var(--ash)', fontSize: '11px' }}>{value}</span>}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Birdie and Bogey Breakdown Section */}
+      <h4 style={{ marginBottom: '16px', color: 'var(--ash)', marginTop: '32px' }}>Birdie and Bogey Breakdown</h4>
+
+      {/* Bogey Rate Bar Chart */}
+      <div style={{ marginBottom: '24px' }}>
+        <h5 style={{ marginBottom: '12px', color: 'var(--ash)', fontSize: '14px' }}>Bogey Rate by Par</h5>
+        <div style={{ background: 'var(--charcoal)', padding: '16px', borderRadius: '4px' }}>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={bogeyRates} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--dark)" />
+              <XAxis dataKey="label" stroke="var(--ash)" fontSize={11} />
+              <YAxis stroke="var(--ash)" fontSize={11} unit="%" />
+              <Tooltip 
+                contentStyle={{ background: 'var(--court)', border: '1px solid var(--scarlet)', borderRadius: '4px' }}
+                labelStyle={{ color: 'var(--chalk)' }}
+                formatter={(value: number) => [`${value.toFixed(1)}%`, 'Bogey Rate']}
+              />
+              <Bar dataKey="bogeyRate" fill="#F59520" name="Bogey Rate" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+          <p style={{ fontSize: '11px', color: 'var(--ash)', marginTop: '8px' }}>
+            {totalBogeys} total bogeys across {bogeyRates[0].totalHoles} holes
+          </p>
+        </div>
+      </div>
+
+      {/* Birdie Opportunities */}
+      <div style={{ marginBottom: '24px' }}>
+        <h5 style={{ marginBottom: '12px', color: 'var(--ash)', fontSize: '14px' }}>Birdie Opportunities</h5>
+        <div style={{ background: 'var(--charcoal)', padding: '16px', borderRadius: '4px' }}>
+          <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
+            <div>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Opportunities</div>
+              <div className="value-hero" style={{ color: 'var(--chalk)', fontSize: '32px' }}>
+                {birdieOpportunities.opportunities}
+              </div>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>
+                GIR with putt ≤ 20 ft
+              </div>
+            </div>
+            <div>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Conversions</div>
+              <div className="value-hero" style={{ color: 'var(--under)', fontSize: '32px' }}>
+                {birdieOpportunities.conversions}
+              </div>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>
+                Birdies made
+              </div>
+            </div>
+            <div>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Conversion %</div>
+              <div className="value-hero" style={{ color: birdieOpportunities.conversionPct >= 50 ? 'var(--under)' : 'var(--ash)', fontSize: '32px' }}>
+                {birdieOpportunities.conversionPct.toFixed(1)}%
+              </div>
+              <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>
+                Made / Opportunities
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bogey Root Cause Chart */}
+      <div style={{ marginBottom: '24px' }}>
+        <h5 style={{ marginBottom: '12px', color: 'var(--ash)', fontSize: '14px' }}>Bogey Root Cause ({totalBogeys} holes)</h5>
+        <div style={{ background: 'var(--charcoal)', padding: '16px', borderRadius: '4px' }}>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart 
+              data={[
+                { name: 'Penalties', count: bogeyRootCause.penalties },
+                { name: 'Driving', count: bogeyRootCause.driving },
+                { name: 'Approach', count: bogeyRootCause.approach },
+                { name: 'Lag Putts', count: bogeyRootCause.lagPutts },
+                { name: 'Makeable Putts', count: bogeyRootCause.makeablePutts },
+                { name: 'Short Game', count: bogeyRootCause.shortGame },
+                { name: 'Recovery', count: bogeyRootCause.recovery },
+              ]} 
+              layout="vertical"
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--dark)" />
+              <XAxis type="number" stroke="var(--ash)" fontSize={11} />
+              <YAxis dataKey="name" type="category" stroke="var(--ash)" fontSize={10} width={80} />
+              <Tooltip 
+                contentStyle={{ background: 'var(--court)', border: '1px solid var(--scarlet)', borderRadius: '4px' }}
+                labelStyle={{ color: 'var(--chalk)' }}
+              />
+              <Bar dataKey="count" fill="#F59520" name="Count" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Double Bogey+ Root Cause Chart */}
+      <div style={{ marginBottom: '24px' }}>
+        <h5 style={{ marginBottom: '12px', color: 'var(--ash)', fontSize: '14px' }}>Double Bogey+ Root Cause ({totalDoubleBogeyPlus} holes)</h5>
+        <div style={{ background: 'var(--charcoal)', padding: '16px', borderRadius: '4px' }}>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart 
+              data={[
+                { name: 'Penalties', count: doubleBogeyPlusRootCause.penalties },
+                { name: 'Driving', count: doubleBogeyPlusRootCause.driving },
+                { name: 'Approach', count: doubleBogeyPlusRootCause.approach },
+                { name: 'Lag Putts', count: doubleBogeyPlusRootCause.lagPutts },
+                { name: 'Makeable Putts', count: doubleBogeyPlusRootCause.makeablePutts },
+                { name: 'Short Game', count: doubleBogeyPlusRootCause.shortGame },
+                { name: 'Recovery', count: doubleBogeyPlusRootCause.recovery },
+              ]} 
+              layout="vertical"
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--dark)" />
+              <XAxis type="number" stroke="var(--ash)" fontSize={11} />
+              <YAxis dataKey="name" type="category" stroke="var(--ash)" fontSize={10} width={80} />
+              <Tooltip 
+                contentStyle={{ background: 'var(--court)', border: '1px solid var(--scarlet)', borderRadius: '4px' }}
+                labelStyle={{ color: 'var(--chalk)' }}
+              />
+              <Bar dataKey="count" fill="#E8202A" name="Count" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Mental View - Mental resilience metrics
+ * - Five cards: Bounce Back %, Drop Off %, Gas Pedal %, Bogey Train %, Drive after Tiger 5 Fail
+ * - Collapsible "What do these metrics Mean?" section
+ */
+function MentalView({ metrics }: { metrics: MentalMetrics }) {
+  const [showDefinitions, setShowDefinitions] = useState(false);
+  
+  const { 
+    bounceBackPct, 
+    bounceBackCount, 
+    bounceBackTotal,
+    dropOffPct, 
+    dropOffCount, 
+    dropOffTotal,
+    gasPedalPct, 
+    gasPedalCount, 
+    gasPedalTotal,
+    bogeyTrainPct, 
+    bogeyTrainCount, 
+    bogeyTrainTotal,
+    driveAfterT5FailSG,
+    driveAfterT5FailCount,
+    driveAfterT5FailVsBenchmark,
+    avgDriveSGBenchmark,
+  } = metrics;
+
+  return (
+    <div className="content">
+      {/* Section Heading */}
+      <h4 style={{ marginBottom: '16px', color: 'var(--ash)' }}>Mental Resilience</h4>
+      
+      {/* Five Cards */}
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
+        {/* Card 1: Bounce Back % */}
+        <div className="card-stat" style={{ borderLeft: '3px solid var(--under)' }}>
+          <div className="label" style={{ color: 'var(--ash)', marginBottom: '8px' }}>Bounce Back %</div>
+          <div className="value-stat" style={{ color: 'var(--under)' }}>{bounceBackPct.toFixed(1)}%</div>
+          <div style={{ marginTop: '8px' }}>
+            <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>Count</div>
+            <div className="value-stat" style={{ fontSize: '12px' }}>{bounceBackCount} / {bounceBackTotal}</div>
+          </div>
+          <div className="label" style={{ fontSize: '10px', marginTop: '8px', color: 'var(--ash)' }}>Higher is better</div>
+        </div>
+
+        {/* Card 2: Drop Off % */}
+        <div className="card-stat" style={{ borderLeft: '3px solid var(--scarlet)' }}>
+          <div className="label" style={{ color: 'var(--ash)', marginBottom: '8px' }}>Drop Off %</div>
+          <div className="value-stat" style={{ color: 'var(--scarlet)' }}>{dropOffPct.toFixed(1)}%</div>
+          <div style={{ marginTop: '8px' }}>
+            <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>Count</div>
+            <div className="value-stat" style={{ fontSize: '12px' }}>{dropOffCount} / {dropOffTotal}</div>
+          </div>
+          <div className="label" style={{ fontSize: '10px', marginTop: '8px', color: 'var(--ash)' }}>Lower is better</div>
+        </div>
+
+        {/* Card 3: Gas Pedal % */}
+        <div className="card-stat" style={{ borderLeft: '3px solid var(--under)' }}>
+          <div className="label" style={{ color: 'var(--ash)', marginBottom: '8px' }}>Gas Pedal %</div>
+          <div className="value-stat" style={{ color: 'var(--under)' }}>{gasPedalPct.toFixed(1)}%</div>
+          <div style={{ marginTop: '8px' }}>
+            <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>Count</div>
+            <div className="value-stat" style={{ fontSize: '12px' }}>{gasPedalCount} / {gasPedalTotal}</div>
+          </div>
+          <div className="label" style={{ fontSize: '10px', marginTop: '8px', color: 'var(--ash)' }}>Higher is better</div>
+        </div>
+
+        {/* Card 4: Bogey Train % */}
+        <div className="card-stat" style={{ borderLeft: '3px solid var(--scarlet)' }}>
+          <div className="label" style={{ color: 'var(--ash)', marginBottom: '8px' }}>Bogey Train %</div>
+          <div className="value-stat" style={{ color: 'var(--scarlet)' }}>{bogeyTrainPct.toFixed(1)}%</div>
+          <div style={{ marginTop: '8px' }}>
+            <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>Count</div>
+            <div className="value-stat" style={{ fontSize: '12px' }}>{bogeyTrainCount} / {bogeyTrainTotal}</div>
+          </div>
+          <div className="label" style={{ fontSize: '10px', marginTop: '8px', color: 'var(--ash)' }}>Lower is better</div>
+        </div>
+
+        {/* Card 5: Drive after Tiger 5 Fail */}
+        <div className="card-stat" style={{ borderLeft: '3px solid var(--pitch)' }}>
+          <div className="label" style={{ color: 'var(--ash)', marginBottom: '8px' }}>Drive after Tiger 5 Fail</div>
+          <div className="value-stat" style={{ color: getStrokeGainedColor(driveAfterT5FailSG) }}>
+            {formatStrokesGained(driveAfterT5FailSG)}
+          </div>
+          <div style={{ marginTop: '8px' }}>
+            <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>Drives</div>
+            <div className="value-stat" style={{ fontSize: '12px' }}>{driveAfterT5FailCount}</div>
+          </div>
+          <div className="label" style={{ fontSize: '10px', marginTop: '8px', color: 'var(--ash)' }}>
+            vs Avg: <span style={{ color: driveAfterT5FailVsBenchmark >= 0 ? 'var(--under)' : 'var(--scarlet)' }}>
+              {driveAfterT5FailVsBenchmark >= 0 ? '+' : ''}{formatStrokesGained(driveAfterT5FailVsBenchmark)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Collapsible Definitions Section */}
+      <div style={{ marginTop: '24px' }}>
+        <button
+          onClick={() => setShowDefinitions(!showDefinitions)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            padding: '12px 16px',
+            background: 'var(--charcoal)',
+            border: '1px solid var(--ash)',
+            borderRadius: '4px',
+            color: 'var(--chalk)',
+            cursor: 'pointer',
+            fontSize: '14px',
+          }}
+        >
+          <span style={{ fontWeight: 600 }}>What do these metrics Mean?</span>
+          <span style={{ fontSize: '12px', color: 'var(--ash)' }}>
+            {showDefinitions ? '▲' : '▼'}
+          </span>
+        </button>
+        
+        {showDefinitions && (
+          <div style={{ marginTop: '16px', padding: '16px', background: 'var(--charcoal)', borderRadius: '4px' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <div className="label" style={{ color: 'var(--under)', marginBottom: '4px' }}>Bounce Back %</div>
+              <p style={{ fontSize: '12px', color: 'var(--ash)', margin: 0 }}>
+                How often you recover with par or better after making bogey or worse. Higher is better — shows mental resilience.
+              </p>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <div className="label" style={{ color: 'var(--scarlet)', marginBottom: '4px' }}>Drop Off %</div>
+              <p style={{ fontSize: '12px', color: 'var(--ash)', margin: 0 }}>
+                How often you follow a birdie with a bogey. Lower is better — measures ability to maintain momentum after scoring well.
+              </p>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <div className="label" style={{ color: 'var(--under)', marginBottom: '4px' }}>Gas Pedal %</div>
+              <p style={{ fontSize: '12px', color: 'var(--ash)', margin: 0 }}>
+                How often you follow one birdie with another birdie. Higher is better — shows you can "keep your foot on the gas" when playing well.
+              </p>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <div className="label" style={{ color: 'var(--scarlet)', marginBottom: '4px' }}>Bogey Train %</div>
+              <p style={{ fontSize: '12px', color: 'var(--ash)', margin: 0 }}>
+                Percentage of bogey+ holes that follow another bogey+ hole. Lower is better — indicates you avoid consecutive bad holes.
+              </p>
+            </div>
+            <div>
+              <div className="label" style={{ color: 'var(--pitch)', marginBottom: '4px' }}>Drive after Tiger 5 Fail</div>
+              <p style={{ fontSize: '12px', color: 'var(--ash)', margin: 0 }}>
+                Total SG Drive for tee shots after a Tiger 5 fail. This is another measure of resilience and staying in the present moment.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
