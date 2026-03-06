@@ -976,3 +976,33 @@ export interface PlayerPathMetrics {
   significantDrivers: string[];  // Codes of significant drivers
   moderateDrivers: string[];  // Codes of moderate drivers
 }
+
+// ============================================
+// Performance Driver V2 - New Algorithm with Scoring
+// ============================================
+
+export type DriverCategory = 'Driving' | 'Approach' | 'Lag Putting' | 'Makeable Putts' | 'Short Game';
+export type DriverSeverityV2 = 'Monitor' | 'Moderate' | 'Critical';
+
+export interface PerformanceDriverV2 {
+  rank: number;
+  category: DriverCategory;
+  driverId: string;  // 'D1', 'D2', etc.
+  label: string;     // Specific human-readable label
+  impactScore: number;  // Estimated strokes lost per round
+  severity: DriverSeverityV2;
+  sampleSize: number;
+  metricValue: number;
+  thresholdValue: number;
+  cascadeNote?: string;
+  
+  // Additional data for display
+  sgImpact?: number;
+  details?: Record<string, any>;
+}
+
+export interface PerformanceDriversResultV2 {
+  drivers: PerformanceDriverV2[];
+  totalRounds: number;
+  calculatedAt: Date;
+}

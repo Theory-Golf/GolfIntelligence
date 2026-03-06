@@ -4,11 +4,11 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Papa from 'papaparse';
-import type { RawShot, ProcessedShot, Tiger5Metrics, RoundSummary, FilterState, FilterOptions, DrivingMetrics, DrivingAnalysis, ProblemDriveMetrics, ApproachMetrics, ApproachDistanceBucket, ApproachHeatMapData, PuttingMetrics, PuttingDistanceBucket, LagPuttingMetrics, ScoringMetrics, MentalMetrics, BirdieAndBogeyMetrics, ShortGameMetrics, ShortGameHeatMapData, PerformanceDriversResult, PlayerPathMetrics } from '../types/golf';
+import type { RawShot, ProcessedShot, Tiger5Metrics, RoundSummary, FilterState, FilterOptions, DrivingMetrics, DrivingAnalysis, ProblemDriveMetrics, ApproachMetrics, ApproachDistanceBucket, ApproachHeatMapData, PuttingMetrics, PuttingDistanceBucket, LagPuttingMetrics, ScoringMetrics, MentalMetrics, BirdieAndBogeyMetrics, ShortGameMetrics, ShortGameHeatMapData, PerformanceDriversResult, PlayerPathMetrics, PerformanceDriversResultV2 } from '../types/golf';
 import type { BenchmarkType } from '../data/benchmarks';
 import { processShots, calculateTiger5Metrics, getRoundSummaries, calculateDrivingMetrics, calculateDrivingAnalysis, calculateProblemDriveMetrics, calculateApproachMetrics, calculateApproachByDistance, calculateApproachFromRough, calculateApproachHeatMapData, calculatePuttingMetrics, calculatePuttingByDistance, calculateLagPuttingMetrics, calculateScoringMetrics, calculateMentalMetrics, calculateBirdieAndBogeyMetrics, calculateShortGameMetrics, calculateShortGameHeatMapData } from '../utils/calculations';
 import { calculatePerformanceDrivers } from '../utils/performanceDrivers';
-import { calculatePlayerPathMetrics } from '../utils/playerPathCalculations';
+import { calculatePlayerPathMetrics, calculatePerformanceDriversV2 } from '../utils/playerPathCalculations';
 
 // Google Sheet CSV URL - published to web
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6xTTDWTSzaRvoiACi2PT-l7uqvwcZwdlIZsCGunz-8t-227TBihATnDfUoi5VzDqhOIGcAbJViw9O/pub?output=csv';
@@ -35,6 +35,7 @@ interface UseGolfDataResult {
   shortGameHeatMapData: ShortGameHeatMapData;
   performanceDrivers: PerformanceDriversResult;
   playerPathMetrics: PlayerPathMetrics;
+  performanceDriversV2: PerformanceDriversResultV2;
   roundSummaries: RoundSummary[];
   filterOptions: FilterOptions;
   cascadingFilterOptions: FilterOptions;
@@ -359,6 +360,11 @@ export function useGolfData(): UseGolfDataResult {
     return calculatePlayerPathMetrics(filteredShots);
   }, [filteredShots]);
 
+  // Calculate Performance Drivers V2 (new algorithm with scoring)
+  const performanceDriversV2 = useMemo(() => {
+    return calculatePerformanceDriversV2(filteredShots);
+  }, [filteredShots]);
+
   // Get round summaries from filtered shots
   const roundSummaries = useMemo(() => {
     return getRoundSummaries(filteredShots);
@@ -391,6 +397,7 @@ export function useGolfData(): UseGolfDataResult {
     shortGameHeatMapData,
     performanceDrivers,
     playerPathMetrics,
+    performanceDriversV2,
     roundSummaries,
     filterOptions,
     cascadingFilterOptions,

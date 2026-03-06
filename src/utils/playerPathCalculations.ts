@@ -977,3 +977,555 @@ export function calculatePlayerPathMetrics(shots: ProcessedShot[]): PlayerPathMe
     moderateDrivers,
   };
 }
+
+// ============================================
+// Performance Driver V2 - New Algorithm with Scoring
+// ============================================
+
+import type { PerformanceDriverV2, DriverCategory, DriverSeverityV2, PerformanceDriversResultV2 } from '../types/golf';
+
+/**
+ * Get severity based on threshold breach
+ */
+function getSeverityV2(metricValue: number, threshold: number, severeThreshold?: number): DriverSeverityV2 {
+  if (severeThreshold !== undefined && metricValue >= severeThreshold) {
+    return 'Critical';
+  }
+  if (metricValue >= threshold) {
+    return 'Moderate';
+  }
+  return 'Monitor';
+}
+
+/**
+ * Get severity multiplier for scoring
+ */
+function getSeverityMultiplier(severity: DriverSeverityV2): number {
+  switch (severity) {
+    case 'Critical': return 1.5;
+    case 'Moderate': return 1.2;
+    case 'Monitor': return 1.0;
+    default: return 1.0;
+  }
+}
+
+/**
+ * Calculate impact score based on driver type and metrics
+ */
+function calculateImpactScore(
+  driverId: string,
+  metricValue: number,
+  threshold: number,
+  sampleSize: number,
+  totalRounds: number,
+  sgImpact?: number
+): number {
+  // For SG-based metrics, use the SG impact directly
+  if (sgImpact !== undefined && sgImpact < 0) {
+    return Math.abs(sgImpact) / Math.max(1, totalRounds);
+  }
+  
+  // For rate-based metrics, calculate estimated strokes lost per round
+  const breachAmount = metricValue - threshold;
+  
+  switch (driverId) {
+    // Driving
+    case 'D1': // Penalty Rate - each penalty = ~1.5 strokes impact
+      return (breachAmount / 100) * sampleSize * 1.5 / Math.max(1, totalRounds);
+    case 'D3': // Recovery Rate - each recovery = ~0.8 strokes impact
+      return (breachAmount / 100) * sampleSize * 0.8 / Math.max(1, totalRounds);
+    
+    // Approach
+    case 'A1': // GIR miss - each missed GIR = ~0.5 strokes impact
+      return breachAmount / 100 * sampleSize * 0.5 / Math.max(1, totalRounds);
+    case 'A2': // Proximity failure - each outside target = ~0.2 strokes
+      return breachAmount / 100 * sampleSize * 0.2 / Math.max(1, totalRounds);
+    
+    // Lag Putting
+    case 'L1': // Poor Lag Rate - each outside 5ft = ~0.3 strokes
+      return breachAmount / 100 * sampleSize * 0.3 / Math.max(1, totalRounds);
+    
+    // Short Game
+    case 'S3': // Failure Rate - each >15ft = ~0.5 strokes
+      return breachAmount / 100 * sampleSize * 0.5 / Math.max(1, totalRounds);
+    
+    default:
+      // Default: use breach amount as rough estimate
+      return breachAmount * 0.1;
+  }
+}
+
+/**
+ * Get specificity bonus
+ */
+function getSpecificityBonus(driverId: string, details?: Record<string, any>): number {
+  // Single bucket identified (A4, M2): +30%
+  if (driverId === 'A4' || driverId === 'M2') {
+    return 1.30;
+  }
+  
+  // Lie-specific or distance-band-specific: +20%
+  if (details?.isLieSpecific || details?.isDistanceSpecific) {
+    return 1.20;
+  }
+  
+  return 1.0;
+}
+
+/**
+ * Candidate driver interface for internal processing
+ */
+interface CandidateDriver {
+  driverId: string;
+  category: DriverCategory;
+  label: string;
+  metricValue: number;
+  thresholdValue: number;
+  sampleSize: number;
+  severity: DriverSeverityV2;
+  sgImpact?: number;
+  details?: Record<string, any>;
+}
+
+/**
+ * Calculate all candidate drivers and return top 5
+ */
+export function calculatePerformanceDriversV2(shots: ProcessedShot[]): PerformanceDriversResultV2 {
+  const roundIds = [...new Set(shots.map(s => s['Round ID']))];
+  const totalRounds = roundIds.length;
+  
+  if (totalRounds === 0 || shots.length === 0) {
+    return { drivers: [], totalRounds: 0, calculatedAt: new Date() };
+  }
+  
+  const candidates: CandidateDriver[] = [];
+  
+  // ===== DRIVING DRIVERS =====
+  const teeShots = shots.filter(s => s['Starting Lie'] === 'Tee');
+  const totalTeeShots = teeShots.length;
+  
+  // D1 - Tee Shot Penalty Rate
+  if (totalTeeShots > 0) {
+    const penaltyCount = teeShots.filter(s => s.Penalty === 'Yes').length;
+    const penaltyRate = (penaltyCount / totalTeeShots) * 100;
+    const threshold = 5;
+    const severeThreshold = 10;
+    
+    if (penaltyRate >= threshold || penaltyCount >= 3) {
+      const severity = getSeverityV2(penaltyRate, threshold, severeThreshold);
+      const sgImpact = teeShots.filter(s => s.Penalty === 'Yes').reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+      
+      candidates.push({
+        driverId: 'D1',
+        category: 'Driving',
+        label: `Tee Shot Penalty Rate — ${penaltyRate.toFixed(1)}% (${penaltyCount} penalties)`,
+        metricValue: penaltyRate,
+        thresholdValue: threshold,
+        sampleSize: totalTeeShots,
+        severity,
+        sgImpact,
+      });
+    }
+  }
+  
+  // D2 - Distance Deficiency
+  const fairwayTees = teeShots.filter(s => s['Ending Lie'] === 'Fairway');
+  if (fairwayTees.length >= 10) {
+    const negativeSGTees = fairwayTees.filter(s => s.calculatedStrokesGained < 0);
+    const negativeRate = (negativeSGTees.length / fairwayTees.length) * 100;
+    const threshold = 50;
+    
+    if (negativeRate >= threshold) {
+      const severity = getSeverityV2(negativeRate, threshold);
+      const sgImpact = negativeSGTees.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+      
+      candidates.push({
+        driverId: 'D2',
+        category: 'Driving',
+        label: `Distance Deficiency — ${negativeRate.toFixed(1)}% of fairway drives losing strokes`,
+        metricValue: negativeRate,
+        thresholdValue: threshold,
+        sampleSize: fairwayTees.length,
+        severity,
+        sgImpact,
+        details: { isDistanceSpecific: true },
+      });
+    }
+  }
+  
+  // D3 - Severe Miss Rate (Recovery)
+  if (totalTeeShots > 0) {
+    const recoveryCount = teeShots.filter(s => s['Ending Lie'] === 'Recovery').length;
+    const recoveryRate = (recoveryCount / totalTeeShots) * 100;
+    const threshold = 5;
+    const severeThreshold = 10;
+    
+    if (recoveryRate >= threshold || recoveryCount >= 3) {
+      const severity = getSeverityV2(recoveryRate, threshold, severeThreshold);
+      const sgImpact = teeShots.filter(s => s['Ending Lie'] === 'Recovery').reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+      
+      candidates.push({
+        driverId: 'D3',
+        category: 'Driving',
+        label: `Severe Miss Pattern — Recovery Lie Rate off Tee: ${recoveryRate.toFixed(1)}%`,
+        metricValue: recoveryRate,
+        thresholdValue: threshold,
+        sampleSize: totalTeeShots,
+        severity,
+        sgImpact,
+      });
+    }
+  }
+  
+  // ===== APPROACH DRIVERS =====
+  const approaches = shots.filter(s => s.shotType === 'Approach');
+  
+  // A1 - GIR Rate by Distance Band
+  const approachBands = [
+    { label: '50-100y', min: 50, max: 100, threshold: 90 },
+    { label: '100-150y', min: 100, max: 150, threshold: 80 },
+    { label: '150-200y', min: 150, max: 200, threshold: 70 },
+    { label: '200y+', min: 200, max: 9999, threshold: 50 },
+  ];
+  
+  approachBands.forEach(band => {
+    const bandShots = approaches.filter(s => 
+      s['Starting Distance'] >= band.min && s['Starting Distance'] < band.max
+    );
+    
+    if (bandShots.length >= 10) {
+      const greenHits = bandShots.filter(s => s['Ending Lie'] === 'Green').length;
+      const girRate = (greenHits / bandShots.length) * 100;
+      
+      if (girRate < band.threshold) {
+        const sgImpact = bandShots.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+        
+        candidates.push({
+          driverId: 'A1',
+          category: 'Approach',
+          label: `GIR Rate — ${band.label} averaging ${girRate.toFixed(1)}%`,
+          metricValue: girRate,
+          thresholdValue: band.threshold,
+          sampleSize: bandShots.length,
+          severity: girRate < band.threshold - 15 ? 'Critical' : girRate < band.threshold - 5 ? 'Moderate' : 'Monitor',
+          sgImpact,
+          details: { isDistanceSpecific: true },
+        });
+      }
+    }
+  });
+  
+  // A2 - Scoring Zone Proximity Rate
+  const proximityBands = [
+    { label: '50-100y', min: 50, max: 100, threshold: 40, target: 15 },
+    { label: '100-150y', min: 100, max: 150, threshold: 30, target: 20 },
+    { label: '150-200y', min: 150, max: 200, threshold: 20, target: 30 },
+  ];
+  
+  proximityBands.forEach(band => {
+    const bandShots = approaches.filter(s => 
+      s['Starting Distance'] >= band.min && 
+      s['Starting Distance'] < band.max &&
+      s['Ending Lie'] === 'Green'
+    );
+    
+    if (bandShots.length >= 10) {
+      const insideTarget = bandShots.filter(s => {
+        const distInFeet = s['Ending Distance'] * 3; // Convert yards to feet
+        return distInFeet <= band.target;
+      }).length;
+      const proximityRate = (insideTarget / bandShots.length) * 100;
+      
+      if (proximityRate < band.threshold) {
+        const severity = getSeverityV2(band.threshold - proximityRate, 5, 15);
+        const sgImpact = bandShots.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+        
+        candidates.push({
+          driverId: 'A2',
+          category: 'Approach',
+          label: `Approach Proximity — ${band.label} only ${proximityRate.toFixed(1)}% inside ${band.target} feet`,
+          metricValue: proximityRate,
+          thresholdValue: band.threshold,
+          sampleSize: bandShots.length,
+          severity,
+          sgImpact,
+          details: { isDistanceSpecific: true },
+        });
+      }
+    }
+  });
+  
+  // A4 - Distance Band Black Hole
+  let totalApproachSGLoss = 0;
+  const bandSGLosses: { label: string; sgLoss: number; total: number }[] = [];
+  
+  approachBands.forEach(band => {
+    const bandShots = approaches.filter(s => 
+      s['Starting Distance'] >= band.min && s['Starting Distance'] < band.max
+    );
+    const sgTotal = bandShots.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+    if (sgTotal < 0) {
+      totalApproachSGLoss += Math.abs(sgTotal);
+      bandSGLosses.push({ label: band.label, sgLoss: Math.abs(sgTotal), total: bandShots.length });
+    }
+  });
+  
+  if (totalApproachSGLoss > 0 && bandSGLosses.length > 0) {
+    const worstBand = bandSGLosses.reduce((worst, current) => 
+      current.sgLoss > worst.sgLoss ? current : worst
+    );
+    const percentageOfLosses = (worstBand.sgLoss / totalApproachSGLoss) * 100;
+    const threshold = 40;
+    
+    if (percentageOfLosses >= threshold) {
+      candidates.push({
+        driverId: 'A4',
+        category: 'Approach',
+        label: `Approach Black Hole — ${worstBand.label} accounting for ${percentageOfLosses.toFixed(0)}% of approach SG losses`,
+        metricValue: percentageOfLosses,
+        thresholdValue: threshold,
+        sampleSize: worstBand.total,
+        severity: getSeverityV2(percentageOfLosses, threshold, 50),
+        sgImpact: -worstBand.sgLoss,
+        details: { isSingleBucket: true },
+      });
+    }
+  }
+  
+  // ===== LAG PUTTING DRIVERS =====
+  const putts = shots.filter(s => s.shotType === 'Putt');
+  const lagPutts = putts.filter(s => s['Starting Distance'] > 10);
+  
+  if (lagPutts.length >= 10) {
+    const poorLagPutts = lagPutts.filter(s => s['Ending Distance'] > 5);
+    const poorLagRate = (poorLagPutts.length / lagPutts.length) * 100;
+    const threshold = 20;
+    const severeThreshold = 30;
+    
+    if (poorLagRate >= threshold) {
+      const severity = getSeverityV2(poorLagRate, threshold, severeThreshold);
+      const sgImpact = poorLagPutts.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+      
+      candidates.push({
+        driverId: 'L1',
+        category: 'Lag Putting',
+        label: `Lag Putting — ${poorLagRate.toFixed(1)}% of putts from >10ft finishing outside 5 feet`,
+        metricValue: poorLagRate,
+        thresholdValue: threshold,
+        sampleSize: lagPutts.length,
+        severity,
+        sgImpact,
+      });
+    }
+  }
+  
+  // ===== MAKEABLE PUTTS DRIVERS =====
+  const makeablePutts = putts.filter(s => s['Starting Distance'] <= 20);
+  
+  if (makeablePutts.length >= 10) {
+    // M1 - SG by Distance Bucket
+    const puttBuckets = [
+      { label: '0-4ft', min: 0, max: 4, threshold: -0.10 },
+      { label: '5-8ft', min: 5, max: 8, threshold: -0.15 },
+      { label: '9-12ft', min: 9, max: 12, threshold: -0.12 },
+      { label: '13-20ft', min: 13, max: 20, threshold: -0.10 },
+    ];
+    
+    puttBuckets.forEach(bucket => {
+      const bucketPutts = makeablePutts.filter(s => 
+        s['Starting Distance'] >= bucket.min && s['Starting Distance'] < bucket.max
+      );
+      
+      if (bucketPutts.length >= 10) {
+        const sgTotal = bucketPutts.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+        const avgSG = sgTotal / bucketPutts.length;
+        
+        if (avgSG < bucket.threshold) {
+          const severity = getSeverityV2(Math.abs(avgSG) - Math.abs(bucket.threshold), 0.05, 0.15);
+          
+          candidates.push({
+            driverId: 'M1',
+            category: 'Makeable Putts',
+            label: `Makeable Putts — ${bucket.label} averaging ${avgSG.toFixed(3)} SG per putt`,
+            metricValue: avgSG,
+            thresholdValue: bucket.threshold,
+            sampleSize: bucketPutts.length,
+            severity,
+            sgImpact: sgTotal,
+            details: { isDistanceSpecific: true },
+          });
+        }
+      }
+    });
+    
+    // M2 - Primary Loss Bucket
+    let primaryLossBucket = '';
+    let primaryLossSG = 0;
+    
+    puttBuckets.forEach(bucket => {
+      const bucketPutts = makeablePutts.filter(s => 
+        s['Starting Distance'] >= bucket.min && s['Starting Distance'] < bucket.max
+      );
+      
+      if (bucketPutts.length >= 10) {
+        const sgTotal = bucketPutts.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+        if (sgTotal < primaryLossSG) {
+          primaryLossSG = sgTotal;
+          primaryLossBucket = bucket.label;
+        }
+      }
+    });
+    
+    if (primaryLossBucket && primaryLossSG < -1) {
+      candidates.push({
+        driverId: 'M2',
+        category: 'Makeable Putts',
+        label: `Makeable Putt Loss — ${primaryLossBucket} costing ${Math.abs(primaryLossSG).toFixed(2)} total SG`,
+        metricValue: primaryLossSG,
+        thresholdValue: 0,
+        sampleSize: makeablePutts.length,
+        severity: getSeverityV2(Math.abs(primaryLossSG), 1, 3),
+        sgImpact: primaryLossSG,
+        details: { isSingleBucket: true },
+      });
+    }
+  }
+  
+  // ===== SHORT GAME DRIVERS =====
+  const shortGame = shots.filter(s => s.shotType === 'Short Game' && s['Starting Distance'] < 60);
+  
+  if (shortGame.length >= 10) {
+    // S1 - Proximity by Lie
+    const lieTypes = ['Fairway', 'Rough', 'Sand'];
+    const lieThresholds: Record<string, number> = {
+      'Fairway': 70,
+      'Rough': 60,
+      'Sand': 50,
+    };
+    
+    lieTypes.forEach(lie => {
+      const lieShots = shortGame.filter(s => s['Starting Lie'] === lie && s['Ending Lie'] === 'Green');
+      
+      if (lieShots.length >= 5) {
+        const inside8Feet = lieShots.filter(s => s['Ending Distance'] <= 8).length;
+        const proximityRate = (inside8Feet / lieShots.length) * 100;
+        const threshold = lieThresholds[lie] || 50;
+        
+        if (proximityRate < threshold) {
+          const severity = getSeverityV2(threshold - proximityRate, 10, 25);
+          const sgImpact = lieShots.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+          
+          candidates.push({
+            driverId: 'S1',
+            category: 'Short Game',
+            label: `Short Game — ${lie} only ${proximityRate.toFixed(1)}% inside 8 feet`,
+            metricValue: proximityRate,
+            thresholdValue: threshold,
+            sampleSize: lieShots.length,
+            severity,
+            sgImpact,
+            details: { isLieSpecific: true },
+          });
+        }
+      }
+    });
+    
+    // S3 - Failure Rate (>15 feet)
+    const failures = shortGame.filter(s => {
+      if (s['Ending Lie'] !== 'Green') return true;
+      const distInFeet = s['Ending Distance'] * 3;
+      return distInFeet > 15;
+    });
+    
+    if (shortGame.length >= 10) {
+      const failureRate = (failures.length / shortGame.length) * 100;
+      const threshold = 20;
+      
+      if (failureRate >= threshold) {
+        const severity = getSeverityV2(failureRate, threshold, 30);
+        const sgImpact = failures.reduce((sum, s) => sum + s.calculatedStrokesGained, 0);
+        
+        candidates.push({
+          driverId: 'S3',
+          category: 'Short Game',
+          label: `Short Game Failure — ${failureRate.toFixed(1)}% of shots leaving >15 feet`,
+          metricValue: failureRate,
+          thresholdValue: threshold,
+          sampleSize: shortGame.length,
+          severity,
+          sgImpact,
+        });
+      }
+    }
+  }
+  
+  // ===== SCORING ALGORITHM =====
+  
+  // Calculate final scores for each candidate
+  const scoredCandidates = candidates
+    .filter(c => c.sampleSize >= 10) // Minimum sample gate
+    .map(c => {
+      const impactScore = calculateImpactScore(
+        c.driverId,
+        c.metricValue,
+        c.thresholdValue,
+        c.sampleSize,
+        totalRounds,
+        c.sgImpact
+      );
+      const severityMultiplier = getSeverityMultiplier(c.severity);
+      const specificityBonus = getSpecificityBonus(c.driverId, c.details);
+      const finalScore = impactScore * severityMultiplier * specificityBonus;
+      
+      return {
+        ...c,
+        impactScore,
+        finalScore,
+      };
+    });
+  
+  // Sort by final score (descending)
+  scoredCandidates.sort((a, b) => b.finalScore - a.finalScore);
+  
+  // Take top 5 and add cascade detection
+  let top5 = scoredCandidates.slice(0, 5).map((c, idx) => ({
+    rank: idx + 1,
+    category: c.category,
+    driverId: c.driverId,
+    label: c.label,
+    impactScore: c.impactScore,
+    severity: c.severity,
+    sampleSize: c.sampleSize,
+    metricValue: c.metricValue,
+    thresholdValue: c.thresholdValue,
+    sgImpact: c.sgImpact,
+  })) as PerformanceDriverV2[];
+  
+  // Apply cascade detection
+  const driverIds = top5.map(d => d.driverId);
+  
+  top5 = top5.map(driver => {
+    let cascadeNote: string | undefined;
+    
+    // Check if short game S1 is flagged AND approach A1 GIR rate is low
+    if (driver.driverId === 'S1' && driverIds.includes('A1')) {
+      const a1Driver = top5.find(d => d.driverId === 'A1');
+      if (a1Driver && a1Driver.metricValue < a1Driver.thresholdValue - 10) {
+        cascadeNote = "Low GIR rate may be increasing short game volume";
+      }
+    }
+    
+    // Check if lag putting L1 is flagged AND makeable putt M1 is flagged
+    if (driver.driverId === 'L1' && driverIds.includes('M1')) {
+      cascadeNote = "Lag putting issues may affect makeable putt confidence";
+    }
+    
+    return { ...driver, cascadeNote };
+  });
+  
+  return {
+    drivers: top5,
+    totalRounds,
+    calculatedAt: new Date(),
+  };
+}

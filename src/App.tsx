@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import './styles/globals.css'
 import { useGolfData } from './hooks/useGolfData'
-import { TABS, Tiger5Metrics, Tiger5Fail, RootCauseMetrics, Tiger5FailDetails, RootCauseByFailTypeList, Tiger5TrendDataPoint, ProcessedShot, DrivingMetrics, DrivingAnalysis, ProblemDriveMetrics, ApproachMetrics, ApproachDistanceBucket, ApproachHeatMapData, PuttingMetrics, LagPuttingMetrics, ScoringMetrics, HoleOutcome, MentalMetrics, BirdieAndBogeyMetrics, ShortGameMetrics, ShortGameHeatMapData, PerformanceDriversResult, PlayerPathMetrics } from './types/golf'
+import { TABS, Tiger5Metrics, Tiger5Fail, RootCauseMetrics, Tiger5FailDetails, RootCauseByFailTypeList, Tiger5TrendDataPoint, ProcessedShot, DrivingMetrics, DrivingAnalysis, ProblemDriveMetrics, ApproachMetrics, ApproachDistanceBucket, ApproachHeatMapData, PuttingMetrics, LagPuttingMetrics, ScoringMetrics, HoleOutcome, MentalMetrics, BirdieAndBogeyMetrics, ShortGameMetrics, ShortGameHeatMapData, PerformanceDriversResult, PlayerPathMetrics, PerformanceDriversResultV2 } from './types/golf'
 import { getStrokeGainedColor, getShotSGColor, formatStrokesGained, chartColors } from './styles/tokens'
 import { calculateProblemDriveMetrics } from './utils/calculations'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart } from 'recharts'
@@ -31,6 +31,7 @@ function App() {
     shortGameHeatMapData,
     performanceDrivers,
     playerPathMetrics,
+    performanceDriversV2,
     isLoading, 
     error, 
     lastUpdated,
@@ -146,7 +147,7 @@ function App() {
         )}
 
         {!isLoading && !error && activeTab === 'path' && (
-          <PlayerPathView drivers={performanceDrivers} playerPathMetrics={playerPathMetrics} />
+          <PlayerPathView drivers={performanceDrivers} playerPathMetrics={playerPathMetrics} performanceDriversV2={performanceDriversV2} />
         )}
 
 
@@ -4420,7 +4421,7 @@ function ShortGameHeatMapSection({ data }: { data: ShortGameHeatMapData }) {
 /**
  * Player Path View - Performance Drivers by Segment
  */
-function PlayerPathView({ drivers: _drivers, playerPathMetrics }: { drivers: PerformanceDriversResult; playerPathMetrics: PlayerPathMetrics }) {
+function PlayerPathView({ drivers: _drivers, playerPathMetrics, performanceDriversV2 }: { drivers: PerformanceDriversResult; playerPathMetrics: PlayerPathMetrics; performanceDriversV2: PerformanceDriversResultV2 }) {
   const [activeSegment, setActiveSegment] = useState<'Driving' | 'Approach' | 'Putting' | 'Short Game'>('Driving');
   
   // Get severity color
@@ -4733,18 +4734,111 @@ function PlayerPathView({ drivers: _drivers, playerPathMetrics }: { drivers: Per
     );
   };
   
-  // Summary stats
-  const criticalCount = playerPathMetrics.criticalDrivers.length;
-  const significantCount = playerPathMetrics.significantDrivers.length;
-  const moderateCount = playerPathMetrics.moderateDrivers.length;
+  // Get severity color
+  const getSeverityColorV2 = (severity: string): string => {
+    switch (severity) {
+      case 'Critical': return 'var(--scarlet)';
+      case 'Moderate': return '#CA8A04';
+      case 'Monitor': return 'var(--ash)';
+      default: return 'var(--ash)';
+    }
+  };
+  
+  // Get category icon
+  const getCategoryIcon = (category: string): string => {
+    switch (category) {
+      case 'Driving': return '🚗';
+      case 'Approach': return '🎯';
+      case 'Lag Putting': return '⛳';
+      case 'Makeable Putts': return '🎱';
+      case 'Short Game': return '🏌️';
+      default: return '📊';
+    }
+  };
+  
+  const top5Drivers = performanceDriversV2.drivers;
   
   return (
     <div className="content">
       {/* Section Heading */}
       <h4 style={{ marginBottom: '8px', color: 'var(--ash)' }}>Player Path</h4>
       <p style={{ fontSize: '12px', color: 'var(--ash)', marginBottom: '16px' }}>
-        Performance Drivers — Specific, measurable aspects of your game with statistically significant impact on scoring
+        Top 5 Performance Drivers — Ranked by scoring impact with specificity bonuses applied
       </p>
+      
+      {/* Top 5 Performance Drivers Hero Cards */}
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '32px' }}>
+        {top5Drivers.length > 0 ? top5Drivers.map((driver) => (
+          <div 
+            key={driver.driverId}
+            className="card-hero"
+            style={{ 
+              borderLeft: `4px solid ${getSeverityColorV2(driver.severity)}`,
+              padding: '16px',
+            }}
+          >
+            {/* Rank Badge */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span style={{ 
+                fontSize: '11px', 
+                fontWeight: 700, 
+                color: 'var(--chalk)',
+                background: 'var(--obsidian)',
+                padding: '2px 6px',
+                borderRadius: '4px',
+              }}>
+                #{driver.rank}
+              </span>
+              <span style={{ 
+                fontSize: '10px', 
+                fontWeight: 600, 
+                color: getSeverityColorV2(driver.severity),
+                background: `${getSeverityColorV2(driver.severity)}20`,
+                padding: '2px 8px',
+                borderRadius: '4px',
+                textTransform: 'uppercase',
+              }}>
+                {driver.severity}
+              </span>
+            </div>
+            
+            {/* Category */}
+            <div style={{ fontSize: '11px', color: 'var(--ash)', marginBottom: '4px' }}>
+              {getCategoryIcon(driver.category)} {driver.category}
+            </div>
+            
+            {/* Label */}
+            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--chalk)', marginBottom: '12px', lineHeight: 1.3 }}>
+              {driver.label}
+            </div>
+            
+            {/* Impact Score */}
+            <div style={{ paddingTop: '8px', borderTop: '1px solid var(--obsidian)' }}>
+              <div style={{ fontSize: '10px', color: 'var(--ash)' }}>Impact</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--scarlet)' }}>
+                {driver.impactScore.toFixed(2)} strokes/round
+              </div>
+            </div>
+            
+            {/* Cascade Note */}
+            {driver.cascadeNote && (
+              <div style={{ marginTop: '8px', padding: '6px', background: 'var(--obsidian)', borderRadius: '4px', fontSize: '10px', color: 'var(--cement)', fontStyle: 'italic' }}>
+                💡 {driver.cascadeNote}
+              </div>
+            )}
+            
+            {/* Sample Size */}
+            <div style={{ marginTop: '8px', fontSize: '9px', color: 'var(--ash)' }}>
+              Sample: {driver.sampleSize} shots
+            </div>
+          </div>
+        )) : (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '32px', color: 'var(--ash)' }}>
+            <p>No significant performance drivers identified.</p>
+            <p style={{ fontSize: '11px', marginTop: '8px' }}>Keep tracking your shots to identify patterns.</p>
+          </div>
+        )}
+      </div>
       
       {/* Summary Stats */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
@@ -4755,7 +4849,7 @@ function PlayerPathView({ drivers: _drivers, playerPathMetrics }: { drivers: Per
           borderLeft: '3px solid var(--scarlet)',
           flex: 1,
         }}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--scarlet)' }}>{criticalCount}</div>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--scarlet)' }}>{playerPathMetrics.criticalDrivers.length}</div>
           <div style={{ fontSize: '10px', color: 'var(--ash)' }}>Critical Drivers</div>
         </div>
         <div style={{ 
@@ -4765,7 +4859,7 @@ function PlayerPathView({ drivers: _drivers, playerPathMetrics }: { drivers: Per
           borderLeft: '3px solid #EA580C',
           flex: 1,
         }}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#EA580C' }}>{significantCount}</div>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#EA580C' }}>{playerPathMetrics.significantDrivers.length}</div>
           <div style={{ fontSize: '10px', color: 'var(--ash)' }}>Significant Drivers</div>
         </div>
         <div style={{ 
@@ -4775,7 +4869,7 @@ function PlayerPathView({ drivers: _drivers, playerPathMetrics }: { drivers: Per
           borderLeft: '3px solid #CA8A04',
           flex: 1,
         }}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#CA8A04' }}>{moderateCount}</div>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: '#CA8A04' }}>{playerPathMetrics.moderateDrivers.length}</div>
           <div style={{ fontSize: '10px', color: 'var(--ash)' }}>Moderate Drivers</div>
         </div>
         <div style={{ 
