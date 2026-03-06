@@ -633,3 +633,38 @@ export interface MentalMetrics {
   avgDriveSGBenchmark: number;  // Benchmark average SG per drive
   driveAfterT5FailVsBenchmark: number;  // Difference from benchmark
 }
+
+// Performance Driver severity rating
+export type PerformanceDriverRating = 'Critical' | 'Significant' | 'Moderate';
+
+// Game segment for Performance Drivers
+export type PerformanceDriverSegment = 'Driving' | 'Approach' | 'Short Game' | 'Putting' | 'Mental' | 'Scoring';
+
+// Single Performance Driver
+export interface PerformanceDriver {
+  id: string;
+  segment: PerformanceDriverSegment;
+  subCategory: string;  // e.g., "OB Penalties", "100-150y Approach"
+  metricName: string;   // Display name for the metric
+  narrative: string;    // Dynamic narrative explaining the issue
+  
+  // Analytics
+  sgPerRound: number;        // SG impact per round
+  totalStrokesLost: number;  // Total negative SG
+  tiger5RootCauses: number;  // Count of T5 fails as root cause
+  occurrenceCount: number;    // How many times this occurred
+  
+  // Rating
+  rating: PerformanceDriverRating;
+  
+  // For potential drill-down
+  benchmark?: number;
+  playerValue?: number;
+}
+
+// Performance Drivers result
+export interface PerformanceDriversResult {
+  drivers: PerformanceDriver[];
+  totalRounds: number;
+  calculatedAt: Date;
+}

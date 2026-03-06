@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import './styles/globals.css'
 import { useGolfData } from './hooks/useGolfData'
-import { TABS, Tiger5Metrics, Tiger5Fail, RootCauseMetrics, Tiger5FailDetails, RootCauseByFailTypeList, Tiger5TrendDataPoint, ProcessedShot, DrivingMetrics, DrivingAnalysis, ProblemDriveMetrics, ApproachMetrics, ApproachDistanceBucket, ApproachHeatMapData, PuttingMetrics, LagPuttingMetrics, ScoringMetrics, HoleOutcome, MentalMetrics, BirdieAndBogeyMetrics, ShortGameMetrics, ShortGameHeatMapData } from './types/golf'
+import { TABS, Tiger5Metrics, Tiger5Fail, RootCauseMetrics, Tiger5FailDetails, RootCauseByFailTypeList, Tiger5TrendDataPoint, ProcessedShot, DrivingMetrics, DrivingAnalysis, ProblemDriveMetrics, ApproachMetrics, ApproachDistanceBucket, ApproachHeatMapData, PuttingMetrics, LagPuttingMetrics, ScoringMetrics, HoleOutcome, MentalMetrics, BirdieAndBogeyMetrics, ShortGameMetrics, ShortGameHeatMapData, PerformanceDriversResult } from './types/golf'
 import { getStrokeGainedColor, getShotSGColor, formatStrokesGained, chartColors } from './styles/tokens'
 import { calculateProblemDriveMetrics } from './utils/calculations'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart } from 'recharts'
@@ -29,6 +29,7 @@ function App() {
     mentalMetrics,
     shortGameMetrics,
     shortGameHeatMapData,
+    performanceDrivers,
     isLoading, 
     error, 
     lastUpdated,
@@ -143,13 +144,17 @@ function App() {
           <ScoringView metrics={scoringMetrics} birdieAndBogeyMetrics={birdieAndBogeyMetrics} mentalMetrics={mentalMetrics} />
         )}
 
+        {!isLoading && !error && activeTab === 'path' && (
+          <PlayerPathView drivers={performanceDrivers} />
+        )}
+
 
 
         {!isLoading && !error && activeTab === 'shortgame' && (
           <ShortGameView metrics={shortGameMetrics} shortGameHeatMapData={shortGameHeatMapData} filteredShots={filteredShots} />
         )}
         
-        {!isLoading && !error && activeTab !== 'tiger5' && activeTab !== 'sg' && activeTab !== 'driving' && activeTab !== 'approach' && activeTab !== 'putting' && activeTab !== 'scoring' && activeTab !== 'shortgame' && (
+        {!isLoading && !error && activeTab !== 'tiger5' && activeTab !== 'sg' && activeTab !== 'driving' && activeTab !== 'approach' && activeTab !== 'putting' && activeTab !== 'scoring' && activeTab !== 'path' && activeTab !== 'shortgame' && (
           <div className="content">
             <div className="card">
               <h3>{TABS.find(t => t.id === activeTab)?.label}</h3>
@@ -4408,6 +4413,143 @@ function ShortGameHeatMapSection({ data }: { data: ShortGameHeatMapData }) {
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * Player Path View - Top 5 Performance Drivers
+ */
+function PlayerPathView({ drivers }: { drivers: PerformanceDriversResult }) {
+  const { drivers: performanceDrivers, totalRounds } = drivers;
+  
+  // Get segment icon
+  const getSegmentIcon = (segment: string): string => {
+    switch (segment) {
+      case 'Driving': return '🎯';
+      case 'Approach': return '🎯';
+      case 'Short Game': return '🏌️';
+      case 'Putting': return '⛳';
+      case 'Mental': return '🧠';
+      case 'Scoring': return '📊';
+      default: return '📈';
+    }
+  };
+  
+  // Get rating color
+  const getRatingColor = (rating: string): string => {
+    switch (rating) {
+      case 'Critical': return 'var(--scarlet)';
+      case 'Significant': return '#EA580C'; // Orange
+      case 'Moderate': return '#CA8A04'; // Yellow
+      default: return 'var(--ash)';
+    }
+  };
+  
+  return (
+    <div className="content">
+      {/* Section Heading */}
+      <h4 style={{ marginBottom: '8px', color: 'var(--ash)' }}>Performance Drivers</h4>
+      <p style={{ fontSize: '12px', color: 'var(--ash)', marginBottom: '24px' }}>
+        Top 5 issues hurting your performance, ranked by impact on strokes gained and Tiger 5 fails
+      </p>
+      
+      {/* Driver Cards Grid */}
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+        {performanceDrivers.map((driver, index) => (
+          <div 
+            key={driver.id} 
+            className="card-stat"
+            style={{ 
+              borderLeft: `4px solid ${getRatingColor(driver.rating)}`,
+              background: 'var(--charcoal)',
+              padding: '20px',
+            }}
+          >
+            {/* Header: Rank, Segment, Rating */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ 
+                  fontSize: '14px', 
+                  fontWeight: 700, 
+                  color: 'var(--chalk)',
+                  background: 'var(--obsidian)',
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  {index + 1}
+                </span>
+                <span style={{ fontSize: '16px' }}>{getSegmentIcon(driver.segment)}</span>
+                <span style={{ color: 'var(--chalk)', fontWeight: 600, fontSize: '14px' }}>{driver.segment}</span>
+              </div>
+              <span style={{ 
+                fontSize: '10px', 
+                fontWeight: 600, 
+                color: getRatingColor(driver.rating),
+                background: `${getRatingColor(driver.rating)}20`,
+                padding: '4px 8px',
+                borderRadius: '4px',
+                textTransform: 'uppercase',
+              }}>
+                {driver.rating}
+              </span>
+            </div>
+            
+            {/* Metric Name */}
+            <h5 style={{ color: 'var(--chalk)', fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>
+              {driver.metricName}
+            </h5>
+            
+            {/* Narrative */}
+            <p style={{ color: 'var(--cement)', fontSize: '12px', lineHeight: '1.5', marginBottom: '16px' }}>
+              {driver.narrative}
+            </p>
+            
+            {/* Stats Row */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              padding: '12px',
+              background: 'var(--obsidian)',
+              borderRadius: '4px',
+            }}>
+              <div>
+                <div style={{ color: 'var(--ash)', fontSize: '10px', marginBottom: '4px' }}>SG / Round</div>
+                <div style={{ 
+                  color: driver.sgPerRound < 0 ? 'var(--scarlet)' : 'var(--under)', 
+                  fontSize: '16px', 
+                  fontWeight: 600 
+                }}>
+                  {driver.sgPerRound.toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: 'var(--ash)', fontSize: '10px', marginBottom: '4px' }}>Tiger 5 Root Causes</div>
+                <div style={{ color: 'var(--chalk)', fontSize: '16px', fontWeight: 600 }}>
+                  {driver.tiger5RootCauses}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: 'var(--ash)', fontSize: '10px', marginBottom: '4px' }}>Occurrences</div>
+                <div style={{ color: 'var(--chalk)', fontSize: '16px', fontWeight: 600 }}>
+                  {driver.occurrenceCount}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Empty state */}
+      {performanceDrivers.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '48px', color: 'var(--ash)' }}>
+          <p>No performance drivers identified. Load more data to analyze.</p>
+        </div>
+      )}
+    </div>
   );
 }
 
