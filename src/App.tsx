@@ -4996,28 +4996,30 @@ function CoachingView({ metrics }: { metrics: CoachTableMetrics }) {
   const { players } = metrics;
 
   // Define columns with their data keys and display names
+  // alwaysTotal: column always shows total value regardless of displayMode toggle
+  // alwaysPerRound: column always shows per-round average regardless of displayMode toggle
   const columns = [
     { key: 'player', label: 'Player', isPlayer: true },
-    { key: 'totalRounds', label: 'Rnd' },
-    { key: 'avgScore', label: 'Avg' },
+    { key: 'totalRounds', label: 'Rnd', alwaysTotal: true },
+    { key: 'avgScore', label: 'Avg', alwaysPerRound: true },
     { key: 'totalT5Fails', label: 'T5F' },
     { key: 'threePutts', label: '3Put' },
     { key: 'doubleBogey', label: 'Dbl' },
     { key: 'par5Bogey', label: 'P5B' },
     { key: 'missedGreen', label: 'Msg' },
     { key: 'bogeyApproach', label: '125B' },
-    { key: 'bounceBackPct', label: 'Bnc%', isPercent: true },
-    { key: 'dropOffPct', label: 'Drp%', isPercent: true },
-    { key: 'gasPedalPct', label: 'Gas%', isPercent: true },
-    { key: 'bogeyTrainPct', label: 'Trn%', isPercent: true },
+    { key: 'bounceBackPct', label: 'Bnc%', isPercent: true, alwaysTotal: true },
+    { key: 'dropOffPct', label: 'Drp%', isPercent: true, alwaysTotal: true },
+    { key: 'gasPedalPct', label: 'Gas%', isPercent: true, alwaysTotal: true },
+    { key: 'bogeyTrainPct', label: 'Trn%', isPercent: true, alwaysTotal: true },
     { key: 'totalStrokesGained', label: 'SG', isSG: true },
     { key: 'sgDriving', label: 'SG Drv', isSG: true },
-    { key: 'penaltyRate', label: 'Pnl%', isPercent: true },
+    { key: 'penaltyRate', label: 'Pnl%', isPercent: true, alwaysTotal: true },
     { key: 'sgApproach', label: 'SG Apr', isSG: true },
-    { key: 'girPct', label: 'GIR%', isPercent: true },
+    { key: 'girPct', label: 'GIR%', isPercent: true, alwaysTotal: true },
     { key: 'sgPutting', label: 'SG Putt', isSG: true },
     { key: 'sg5to12Ft', label: 'SG 5-12', isSG: true },
-    { key: 'poorLagPuttPct', label: 'PLag%', isPercent: true, invertPercent: true },
+    { key: 'poorLagPuttPct', label: 'PLag%', isPercent: true, invertPercent: true, alwaysTotal: true },
     { key: 'sgShortGame', label: 'SG SG', isSG: true },
   ];
 
@@ -5063,6 +5065,7 @@ function CoachingView({ metrics }: { metrics: CoachTableMetrics }) {
   };
 
   // Format value based on column type
+  // Takes into account alwaysTotal and alwaysPerRound flags
   const formatValue = (column: typeof columns[0], value: number | string | undefined, player: typeof players[0]) => {
     if (value === undefined || value === null) return '-';
     
@@ -5073,7 +5076,16 @@ function CoachingView({ metrics }: { metrics: CoachTableMetrics }) {
       return rankMap.get(player.player) || '-';
     }
     
-    if (displayMode === 'perRound' && !column.isPlayer && typeof value === 'number') {
+    // Determine effective display mode for this column
+    // If column has alwaysTotal or alwaysPerRound flag, use that instead of global displayMode
+    let effectiveDisplayMode: 'perRound' | 'total' = displayMode;
+    if (column.alwaysTotal) {
+      effectiveDisplayMode = 'total';
+    } else if (column.alwaysPerRound) {
+      effectiveDisplayMode = 'perRound';
+    }
+    
+    if (effectiveDisplayMode === 'perRound' && !column.isPlayer && typeof value === 'number') {
       // For per round, divide by rounds
       const perRound = player.totalRounds > 0 ? value / player.totalRounds : 0;
       if (column.isPercent) return `${perRound.toFixed(1)}%`;
@@ -5087,7 +5099,7 @@ function CoachingView({ metrics }: { metrics: CoachTableMetrics }) {
     return value;
   };
 
-  // Get color for SG values
+  // Get color for SG values - uses the raw total value for coloring regardless of display mode
   const getValueColor = (column: typeof columns[0], value: number | undefined): string => {
     if (value === undefined || value === null) return 'var(--ash)';
     if (column.isSG) return getStrokeGainedColor(value);
