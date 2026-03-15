@@ -289,3 +289,38 @@
   padding: 6px 14px;
   margin-top: 32px;
 }
+
+/* ── DASHBOARD CTA ────────────────────────────────────────── */
+.dashboard-cta {
+  display: inline-block;
+  margin-top: 40px;
+  padding: 14px 32px;
+  background: var(--color-accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.dashboard-cta:hover {
+  opacity: 0.85;
+}
+
+.cta-note {
+  margin-top: 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.cta-note a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.cta-note a:hover {
+  text-decoration: underline;
+}

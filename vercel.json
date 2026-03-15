@@ -1,0 +1,3 @@
+{
+  "comment": "Monorepo with two Vercel projects from the same repo. Set Root Directory to 'web' for theory.golf (Next.js). Leave Root Directory as '.' for intelligence.theory.golf (Vite dashboard)."
+}

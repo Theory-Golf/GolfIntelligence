@@ -19,57 +19,46 @@ export default function GolfIntelligencePage() {
         <p className="display-sub">
           Your program's full analytics suite — strokes gained by category,
           shot-by-shot data, benchmark comparisons, and round-level trends.
-          Each college logs in and sees only their own players' data.
+          Every college logs in and sees only their own players' data.
         </p>
 
-        <div
-          style={{
-            marginTop: '40px',
-            padding: '32px',
-            border: '1px solid var(--color-border)',
-            background: 'var(--color-card)',
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '11px',
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'var(--color-muted)',
-              marginBottom: '12px',
-            }}
-          >
-            Status
+        {/* Framework strip */}
+        <div className="loop-strip" style={{ marginTop: '48px' }}>
+          <p className="eyebrow" style={{ marginBottom: '24px' }}>
+            The Framework
           </p>
-          <p
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-              fontSize: '18px',
-              letterSpacing: '0.03em',
-              textTransform: 'uppercase',
-              color: 'var(--color-text)',
-            }}
-          >
-            Authentication coming soon
-          </p>
-          <p
-            style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: '14px',
-              color: 'var(--color-muted)',
-              marginTop: '8px',
-              lineHeight: 1.6,
-            }}
-          >
-            College login and per-program data access will be wired up in the
-            next phase. The full dashboard engine already exists — we're building
-            the secure auth layer now.
-          </p>
+          <div className="loop-steps">
+            <div className="loop-step">
+              <span className="loop-step-num">01</span>
+              <p className="loop-step-title">Tiger 5</p>
+              <p className="loop-step-body">When did the round break down?</p>
+            </div>
+            <div className="loop-arrow">→</div>
+            <div className="loop-step">
+              <span className="loop-step-num">02</span>
+              <p className="loop-step-title">Root Cause</p>
+              <p className="loop-step-body">Where specifically did it happen?</p>
+            </div>
+            <div className="loop-arrow">→</div>
+            <div className="loop-step">
+              <span className="loop-step-num">03</span>
+              <p className="loop-step-title">Strokes Gained</p>
+              <p className="loop-step-body">How much did it cost?</p>
+            </div>
+          </div>
         </div>
 
-        <span className="coming-soon">Login — Coming Soon</span>
+        {/* CTA */}
+        <a
+          href="https://intelligence.theory.golf"
+          className="dashboard-cta"
+        >
+          Open Dashboard →
+        </a>
+        <p className="cta-note">
+          Don't have access?{' '}
+          <a href="/contact">Contact us</a> to get your program set up.
+        </p>
       </div>
     </div>
   );
