@@ -1,0 +1,8 @@
+/* ApproachAimOptimizer — component-scoped styles */
+
+.aao-canvas {
+  border-radius: var(--radius-md);
+  width: 100%;
+  height: auto;
+  display: block;
+}
