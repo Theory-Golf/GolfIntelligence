@@ -13,6 +13,13 @@ const RESOURCES = [
     description:
       'Generate a printable yardage card with club distances adjusted for temperature, altitude, humidity, and wind at your tee time.',
   },
+  {
+    slug: 'approach-aim-optimizer',
+    category: 'Tool',
+    title: 'Approach Aim Optimizer',
+    description:
+      'Monte Carlo aim-point calculator using 2σ dispersion ellipses, Pelz bimodal model, and strokes-gained objective to find the optimal aim point for any approach shot.',
+  },
   // Add future resources here — each gets its own /resources/[slug] page
 ];
 
