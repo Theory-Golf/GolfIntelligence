@@ -1,0 +1,269 @@
+/* =============================================================
+   StandardYardageCard — Card output styles + print
+   UI controls use globals.css .syc-* classes.
+   The card itself uses forest/gold/parchment (correct for print).
+   ============================================================= */
+
+/* ── CARD: base ─────────────────────────────────────────────── */
+.syc-card {
+  background: #FAFAF4;
+  border: 1px solid #C0B898;
+  max-width: 780px;
+  margin: 0 auto;
+  overflow: hidden;
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.syc-card-header {
+  background: #1E3A2A;
+  padding: 10px 16px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid #B8952A;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.syc-card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #F7F3E9;
+  line-height: 1.1;
+}
+
+.syc-card-title-accent {
+  color: #D4AF50;
+}
+
+.syc-card-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: #D9D0B8;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+  opacity: 0.85;
+}
+
+.syc-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: flex-end;
+}
+
+.syc-pill {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(184,149,42,0.3);
+  padding: 2px 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  color: #F5EAB8;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* ── CARD BODY ──────────────────────────────────────────────── */
+.syc-card-body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOP ROW */
+.syc-card-top {
+  display: grid;
+  grid-template-columns: 168px 1fr;
+  border-bottom: 2px solid #C0B898;
+}
+
+.syc-col-bag {
+  border-right: 2px solid #C0B898;
+  background: #F4F0E4;
+}
+
+.syc-col-wedge {
+  background: #FAFAF4;
+}
+
+.syc-col-full {
+  border-top: 2px solid #C0B898;
+  background: #FAFAF4;
+}
+
+/* Section heads */
+.syc-tbl-head {
+  background: #1E3A2A;
+  padding: 5px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #D4AF50;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.syc-tbl-head-amber {
+  background: linear-gradient(90deg, #3D2A00, #5A3E00);
+}
+
+.syc-tbl-divider {
+  background: #1E3A2A;
+  padding: 5px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #D4AF50;
+  border-top: 2px solid #B8952A;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.syc-tbl-note {
+  font-weight: 400;
+  opacity: 0.7;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+}
+
+/* ── SHARED TABLE STYLES ────────────────────────────────────── */
+.syc-tbl {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.syc-th {
+  padding: 4px 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+  background: #1E3A2A;
+  border-bottom: none;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.syc-th-left   { text-align: left; padding-left: 10px; color: #D4AF50; }
+.syc-th-accent { color: #D4AF50; }
+.syc-th-bucket { text-align: left; padding-left: 10px; color: #D4AF50; }
+
+.syc-th-amber  { background: #3D2A00; color: rgba(255,220,140,0.85); }
+.syc-th-anchor { background: #1E3A2A; color: #D4AF50; font-weight: 800; }
+.syc-th-temp   { background: #5A3800; color: rgba(255,220,140,0.9); }
+.syc-th-head   { background: #5A1A1A; color: rgba(255,200,200,0.9); }
+.syc-th-tail   { background: #1A3A5A; color: rgba(180,210,255,0.9); }
+.syc-th-head-spd { background: #5A1A1A; color: rgba(255,200,200,0.85); }
+.syc-th-tail-spd { background: #1A3A5A; color: rgba(180,210,255,0.85); }
+
+.syc-tr-group th { padding: 4px 4px 2px; font-size: 9px; }
+
+.syc-td {
+  padding: 4px 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  border-bottom: 1px solid rgba(192,184,152,0.3);
+  vertical-align: middle;
+}
+
+.syc-td-center   { text-align: center; }
+.syc-td-club     { font-family: 'Barlow', sans-serif; font-weight: 700; color: #1E3A2A; font-size: 11px; padding-left: 8px; }
+.syc-td-num      { text-align: right; color: #1A2E1F; font-weight: 600; padding-right: 12px; }
+.syc-td-adj      { text-align: right; color: #2D5A3F; font-weight: 700; padding-right: 8px; }
+.syc-td-yds      { font-family: 'Barlow', sans-serif; font-size: 10px; font-weight: 700; color: #1E3A2A; padding-left: 8px; }
+.syc-td-bucket   { font-family: 'Barlow', sans-serif; font-size: 11px; font-weight: 700; color: #1E3A2A; padding-left: 10px; }
+.syc-td-empty    { color: rgba(0,0,0,0.15); font-size: 9px; }
+.syc-td-best     { font-weight: 700; color: #3D2A00; background: rgba(184,149,42,0.2) !important; }
+.syc-td-anchor   { font-weight: 700; color: #1E3A2A; background: rgba(45,90,63,0.08); }
+.syc-td-cold     { color: #1A3B6A; background: rgba(26,59,106,0.05); font-weight: 600; }
+.syc-td-warm     { color: #7A2A00; background: rgba(184,100,42,0.05); font-weight: 600; }
+.syc-td-head     { color: #8B2020; background: rgba(139,32,32,0.04); font-weight: 600; }
+.syc-td-tail     { color: #2A5B9A; background: rgba(26,59,106,0.04); font-weight: 600; }
+
+/* ── FOOTER ─────────────────────────────────────────────────── */
+.syc-card-footer {
+  background: #1E3A2A;
+  border-top: 1px solid rgba(184,149,42,0.3);
+  padding: 5px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.syc-footer-note {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: #D9D0B8;
+  opacity: 0.7;
+  letter-spacing: 0.04em;
+}
+
+.syc-legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.syc-leg {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #D9D0B8;
+  opacity: 0.8;
+}
+
+.syc-leg-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ── PRINT ──────────────────────────────────────────────────── */
+@media print {
+  body {
+    visibility: hidden;
+  }
+
+  #syc-print-preview {
+    visibility: visible;
+    position: fixed;
+    top: 0;
+    left: 0;
+    max-width: 100% !important;
+  }
+
+  .syc-card {
+    visibility: visible;
+    border: 1px solid #aaa !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  @page {
+    size: 8.5in 5.5in landscape;
+    margin: 0.28in 0.32in;
+  }
+}
