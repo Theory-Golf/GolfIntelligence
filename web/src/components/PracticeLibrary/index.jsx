@@ -15,10 +15,11 @@ const ACTIVITY_ROUTES = {
 
 /**
  * All Performance Driver IDs available for demo toggling.
- * Putting segment: M1, M2, L1, L2, L3
- * Additional segments will extend this list as activities are added.
+ * Putting: M1, M2, L1, L2, L3
+ * Wedge: A1, A2, A3, A4
+ * Additional segments extend this list as activities are added.
  */
-const ALL_DRIVER_IDS = ['M1', 'M2', 'L1', 'L2', 'L3'];
+const ALL_DRIVER_IDS = ['M1', 'M2', 'L1', 'L2', 'L3', 'A1', 'A2', 'A3', 'A4'];
 
 export default function PracticeLibrary() {
   const [activeCategory, setActiveCategory] = useState('all');
