@@ -20,6 +20,13 @@ const RESOURCES = [
     description:
       'Monte Carlo aim-point calculator using 2σ dispersion ellipses, Pelz bimodal model, and strokes-gained objective to find the optimal aim point for any approach shot.',
   },
+  {
+    slug: 'standard-yardage-card',
+    category: 'Tool',
+    title: 'Standard Yardage Card',
+    description:
+      'Generate a printable caddie card with your full bag distances plus altitude, humidity, temperature, and wind reference tables — all on a half-sheet landscape layout.',
+  },
   // Add future resources here — each gets its own /resources/[slug] page
 ];
 
