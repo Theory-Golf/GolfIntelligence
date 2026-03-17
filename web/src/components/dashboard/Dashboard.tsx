@@ -5,22 +5,33 @@
  * Single client-side page with tab-based navigation
  */
 
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import '@/styles/dashboard.css';
 import { useGolfData } from '@/lib/golf/useGolfData';
 import { getBenchmarkOptions } from '@/lib/golf/benchmarks';
 import type { BenchmarkType } from '@/lib/golf/benchmarks';
 import { DashboardNav } from './DashboardNav';
 import { FilterBar } from './FilterBar';
-import { Tiger5View } from './Tiger5View';
-import { StrokesGainedView } from './StrokesGainedView';
-import { DrivingView } from './DrivingView';
-import { ApproachView } from './ApproachView';
-import { PuttingView } from './PuttingView';
-import { ScoringView } from './ScoringView';
-import { ShortGameView } from './ShortGameView';
-import { PlayerPathView } from './PlayerPathView';
-import { CoachingView } from './CoachingView';
+
+// Lazy-load each view — only the active tab's code is fetched
+const Tiger5View = lazy(() => import('./Tiger5View').then(m => ({ default: m.Tiger5View })));
+const StrokesGainedView = lazy(() => import('./StrokesGainedView').then(m => ({ default: m.StrokesGainedView })));
+const DrivingView = lazy(() => import('./DrivingView').then(m => ({ default: m.DrivingView })));
+const ApproachView = lazy(() => import('./ApproachView').then(m => ({ default: m.ApproachView })));
+const PuttingView = lazy(() => import('./PuttingView').then(m => ({ default: m.PuttingView })));
+const ScoringView = lazy(() => import('./ScoringView').then(m => ({ default: m.ScoringView })));
+const ShortGameView = lazy(() => import('./ShortGameView').then(m => ({ default: m.ShortGameView })));
+const PlayerPathView = lazy(() => import('./PlayerPathView').then(m => ({ default: m.PlayerPathView })));
+const CoachingView = lazy(() => import('./CoachingView').then(m => ({ default: m.CoachingView })));
+
+function ViewLoading() {
+  return (
+    <div className="loading">
+      <div className="loading-spinner"></div>
+      <p style={{ marginTop: '16px' }}>Loading view...</p>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('tiger5');
@@ -123,40 +134,44 @@ export default function Dashboard() {
           </div>
         )}
 
-        {!isLoading && !error && activeTab === 'tiger5' && (
-          <Tiger5View metrics={tiger5Metrics} lastUpdated={lastUpdated} />
-        )}
+        {!isLoading && !error && (
+          <Suspense fallback={<ViewLoading />}>
+            {activeTab === 'tiger5' && (
+              <Tiger5View metrics={tiger5Metrics} lastUpdated={lastUpdated} />
+            )}
 
-        {!isLoading && !error && activeTab === 'sg' && (
-          <StrokesGainedView metrics={tiger5Metrics} filteredShots={filteredShots} />
-        )}
+            {activeTab === 'sg' && (
+              <StrokesGainedView metrics={tiger5Metrics} filteredShots={filteredShots} />
+            )}
 
-        {!isLoading && !error && activeTab === 'driving' && (
-          <DrivingView metrics={drivingMetrics} analysis={drivingAnalysis} filteredShots={filteredShots} />
-        )}
+            {activeTab === 'driving' && (
+              <DrivingView metrics={drivingMetrics} analysis={drivingAnalysis} filteredShots={filteredShots} />
+            )}
 
-        {!isLoading && !error && activeTab === 'approach' && (
-          <ApproachView metrics={approachMetrics} approachByDistance={approachByDistance} approachFromRough={approachFromRough} approachHeatMapData={approachHeatMapData} filteredShots={filteredShots} />
-        )}
+            {activeTab === 'approach' && (
+              <ApproachView metrics={approachMetrics} approachByDistance={approachByDistance} approachFromRough={approachFromRough} approachHeatMapData={approachHeatMapData} filteredShots={filteredShots} />
+            )}
 
-        {!isLoading && !error && activeTab === 'putting' && (
-          <PuttingView metrics={puttingMetrics} lagMetrics={lagPuttingMetrics} filteredShots={filteredShots} />
-        )}
+            {activeTab === 'putting' && (
+              <PuttingView metrics={puttingMetrics} lagMetrics={lagPuttingMetrics} filteredShots={filteredShots} />
+            )}
 
-        {!isLoading && !error && activeTab === 'scoring' && (
-          <ScoringView metrics={scoringMetrics} birdieAndBogeyMetrics={birdieAndBogeyMetrics} mentalMetrics={mentalMetrics} />
-        )}
+            {activeTab === 'scoring' && (
+              <ScoringView metrics={scoringMetrics} birdieAndBogeyMetrics={birdieAndBogeyMetrics} mentalMetrics={mentalMetrics} />
+            )}
 
-        {!isLoading && !error && activeTab === 'path' && (
-          <PlayerPathView drivers={performanceDrivers} playerPathMetrics={playerPathMetrics} performanceDriversV2={performanceDriversV2} />
-        )}
+            {activeTab === 'path' && (
+              <PlayerPathView drivers={performanceDrivers} playerPathMetrics={playerPathMetrics} performanceDriversV2={performanceDriversV2} />
+            )}
 
-        {!isLoading && !error && activeTab === 'shortgame' && (
-          <ShortGameView metrics={shortGameMetrics} shortGameHeatMapData={shortGameHeatMapData} filteredShots={filteredShots} />
-        )}
+            {activeTab === 'shortgame' && (
+              <ShortGameView metrics={shortGameMetrics} shortGameHeatMapData={shortGameHeatMapData} filteredShots={filteredShots} />
+            )}
 
-        {!isLoading && !error && activeTab === 'coaching' && (
-          <CoachingView metrics={coachTableMetrics} />
+            {activeTab === 'coaching' && (
+              <CoachingView metrics={coachTableMetrics} />
+            )}
+          </Suspense>
         )}
       </main>
     </div>
