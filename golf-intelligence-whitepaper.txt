@@ -1,0 +1,329 @@
+﻿THEORY/GOLF
+* White Paper
+* Golf Intelligence
+* v1.0
+INTEL
+
+
+Theory Golf · Intelligence Framework
+Golf
+Intelligence
+The data layer behind PlayerPath. How to read your dashboard, use Tiger 5 as your starting point, and convert failure patterns into focused practice — every week.
+________________
+Coach & Player Edition PlayerPath Performance Driver theory.golf/golf-intelligence
+
+
+
+
+Contents
+________________
+Foundation
+* 01 — Purpose
+* 02 — The Intelligence Philosophy
+* 03 — The PlayerPath Data Layer
+Tiger 5
+* 04 — Tiger 5 Explained
+* 05 — The Five Categories
+* 06 — Reading Your Tiger 5
+Deep Dive
+* 07 — The Segment Tabs
+* 08 — The Analysis Workflow
+* 09 — Three Principles
+Output
+* 10 — Getting the Most Out of It
+
+
+
+
+1
+Landing View — Tiger 5
+
+
+5
+Tiger 5 Failure Types
+
+
+6
+Segment Deep-Dive Tabs
+
+
+1
+Question: Why?
+01 — Purpose
+Not More Data.
+Better Answers.
+Most golf analytics tools give you everything — every stat, every category, every number available. The assumption is that more information leads to better decisions. In practice, it leads to noise. A player staring at forty metrics after a round is not better informed. They are overwhelmed, and the most important signal gets buried.
+Golf Intelligence is built around a different premise. The goal is not to provide all the statistics and data. The goal is to provide the statistics and data that answer one question: why. Why did this round score the way it did? Why has scoring stalled over the last eight events? Why does a player perform differently under pressure versus in practice rounds?
+Every metric in Golf Intelligence earns its place by answering part of that question. Statistics that don't contribute to a causal explanation of performance don't appear. What remains is a focused, sequenced view of the game — structured to move a coach or player from observation to root cause to intervention, as efficiently as possible.
+
+
+The Intelligence Standard
+A dashboard that shows you what happened is a scoreboard. A dashboard that explains why it happened — and points to what changes next — is intelligence. Golf Intelligence is built to be the second thing.
+02 — Philosophy
+The Intelligence Philosophy
+Golf is a game of cause and effect played out across eighteen sequential holes. Every shot either expands or constrains what's possible on the next. A tee shot that finds the rough narrows the approach window. A short-sided miss forces a more difficult chip. A chip that leaves a 25-foot putt creates three-putt pressure. The final score is the sum of these cascading consequences — and identifying which link in the chain broke first is the whole job of analysis.
+
+
+Golf Intelligence
+The systematic identification of the specific, measurable factors that explain a player's scoring outcomes — not what happened at the surface level, but why it happened at the root level. Golf Intelligence is the data layer that powers PlayerPath analysis: it supplies the shot-level evidence that confirms, challenges, or refines a performance driver designation.
+This philosophy has two practical consequences for how the dashboard is designed. First, Tiger 5 is the entry point — not a summary at the end. It is the first thing a coach or player sees because it captures the most economically important failures in a round. Second, the segment tabs exist as the diagnostic layer beneath Tiger 5 — the place you go when Tiger 5 tells you something is wrong and you need to understand exactly why.
+
+
+Common Misuse
+Going straight to the stats. The most common mistake is bypassing Tiger 5 and opening individual segment tabs to look for something concerning. Without Tiger 5 establishing which failures are actually costing strokes in competition, segment-level statistics can send you down paths that are analytically interesting but not competitively material. Tiger 5 sets the agenda. The tabs answer it.
+03 — Architecture
+The PlayerPath Data Layer
+Golf Intelligence does not operate independently. It is the data layer that feeds PlayerPath — the Theory Golf framework for identifying a player's primary Performance Driver and building development priorities around it.
+Think of the relationship this way: PlayerPath is the analytical framework — the rules of evidence, the diagnostic criteria, the structure for prioritizing pillars and designating drivers. Golf Intelligence is the evidence itself. It is where the shot-level data lives, where patterns become visible, and where causal explanations get confirmed or challenged.
+
+
+
+
+Layer
+Role
+Primary Tool
+________________
+
+
+PlayerPath
+Framework — diagnostic logic, driver designation, pillar hierarchy
+Periodic review with coach; 4–8 week cadence
+________________
+
+
+Golf Intelligence
+Data layer — shot evidence, pattern confirmation, Tiger 5 tracking
+Weekly; after every competitive round
+________________
+
+
+Segment Tabs
+Deep dive — root cause confirmation within a specific pillar
+On demand; triggered by Tiger 5 findings
+________________
+A player and coach using both tools together follow a clear cadence: Golf Intelligence surfaces what Tiger 5 failures are occurring week over week. When a pattern becomes consistent — say, par-5 bogeys appearing in four of the last five competitive rounds — that pattern triggers a PlayerPath pillar review, which uses the segment tab data to confirm the root cause and designate a Performance Driver. Practice is then built around that driver until the data shows meaningful change.
+04 — Core Concept
+Tiger 5 Explained
+Tiger 5 is the landing view in Golf Intelligence for a reason. It is the fastest, most actionable summary of how a competitive round broke down. Developed by Scott Fawcett of DECADE Golf and documented as a framework Tiger Woods used at his peak, Tiger 5 identifies the five categories of failure that account for the majority of scoring damage in competitive golf.[1]
+The framework is built around a competitive standard — not a statistical average. At his peak, Woods set a personal target of no more than six Tiger 5 failures across a four-round tournament, approximately 1.5 per round. At that rate, Fawcett documented, he would win.[1] The Tiger 5 view in Golf Intelligence tracks this rate for each player, benchmarked against competitive-level targets rather than tour averages or personal history.
+
+
+Why Tiger 5 First
+Tiger 5 failures are not random. Each one traces back to a specific pillar of the game — and when failures cluster in the same category across multiple rounds, they are pointing directly at a performance driver. The Tiger 5 view turns a round of golf into a diagnostic signal in under two minutes.
+The Theory Golf framing of Tiger 5 preserves the original five categories while connecting each failure explicitly to the pillar and segment tab where its root cause lives. When you see a Tiger 5 failure on the landing page, you know immediately which tab in the dashboard holds the data needed to understand why.
+05 — The Framework
+The Five Categories
+Each Tiger 5 category represents a distinct type of scoring failure. They are not arbitrary — each one was selected because it occurs with sufficient frequency to be competitively material, and because it points toward a specific, addressable root cause.
+
+
+
+
+01
+Par-5 Bogeys
+Approach · Scoring Opportunity
+Par 5s are the holes where birdie should be the expectation, not the exception. A bogey on a par 5 means an opportunity was destroyed — either through a penalty, a poor layup decision, or a failure to execute a scoring approach. Each par-5 bogey represents a two-shot swing from the expected outcome.
+→ Root cause: Navigate to the Approach tab and filter by par-5 holes. Look at third-shot proximity and layup distances to understand whether the failure is execution, strategy, or tee-shot position.
+
+
+02
+Doubles & Worse
+Driving · Penalty · Recovery
+Double bogeys and worse are round-altering events. A single double bogey requires two birdies just to recover the scoring position lost. High double rates almost always trace upstream — to a penalty stroke off the tee, a failed recovery shot, or a short-game breakdown after a poor approach miss. These are the single highest-cost failures in the Tiger 5 framework.
+→ Root cause: Navigate to the Driving tab first — check penalty rate. Then Recovery tab — look at recovery success rate and attempted shot difficulty. Identify the upstream cause before blaming short game.
+
+
+03
+Three-Putts
+Putting · First-Putt Distance
+Three-putts are one of the most misdiagnosed failures in golf. They feel like putting failures — but most three-putts are caused by first-putt distances that make three-putts statistically likely. Before concluding a player has a putting problem, the segment tab must confirm whether their average first-putt distance is within a range where elite putters would also three-putt at this rate.
+→ Root cause: Navigate to the Putting tab. Check first-putt distance distribution. If average first putts are 30+ feet, three-putts are expected. If first putts average 18–22 feet with elevated three-putt rate, there is a genuine putting driver.
+
+
+04
+Bogeys: 9-Iron or Less
+Short Game · Approach (Short)
+Making a bogey from inside 125 yards means a scoring opportunity was converted into a damage event. At this distance, par should be the floor. These failures occur from two primary causes: a poor short-iron approach that leaves a difficult chip or long putt, or a short-game breakdown after hitting the green from inside this range. Each has a different fix.
+→ Root cause: Navigate to the Approach tab and filter to short-iron distances. Then check Short Game tab for proximity from scrambling situations at these distances to distinguish approach misses from short-game breakdowns.
+
+
+05
+Penalty Strokes
+Driving · Course Management
+A penalty stroke is an immediate one-stroke loss plus all the positional damage that follows. Penalty rate is the single highest-priority metric in the Tiger 5 framework because its structural impact on scoring is unrecoverable in the short term. At his peak, Tiger Woods maintained a tee-shot penalty rate of approximately 1.1% — penalty avoidance was his first objective off every tee, before distance, before accuracy.[2]
+→ Root cause: Navigate to the Driving tab. Look at which holes and tee shots are generating penalties — pattern by hole type, wind condition, or specific shot shape. Penalties cluster around identifiable patterns when examined at volume.
+06 — Practical Use
+Reading Your Tiger 5
+The Tiger 5 landing view shows failure counts per category across recent competitive rounds. Reading it correctly requires two layers of analysis: frequency and pattern.
+* 01 Count, then compare to benchmark. The raw number of Tiger 5 failures per round matters only relative to a competitive benchmark. A player averaging 3.5 Tiger 5 failures per round in college competition is performing near the Tiger standard. A player averaging 6+ is experiencing systemic breakdown. The benchmark on the dashboard reflects competitive performance targets — not personal bests or statistical averages.
+________________
+* 02 Look for category concentration. Random Tiger 5 failures distributed evenly across all five categories are less diagnostically significant than failures concentrated in one or two categories. Concentration signals a specific, addressable problem. Three par-5 bogeys and four three-putts in a single round is a different diagnostic picture than one of each. Concentration is the signal to act on.
+________________
+* 03 Track trend across rounds, not just the most recent. A single round with five Tiger 5 failures can be variance. The same category appearing in four of the last five competitive rounds is a pattern. Golf Intelligence surfaces both — the single-round view and the rolling window — so coaches and players can distinguish variance from structure.
+________________
+* 04 Use category as navigation, not conclusion. Tiger 5 tells you where the scoring damage is occurring. It does not tell you why. A three-putt failure is not a diagnosis — it is a signal that the Putting tab, paired with first-putt distance context, holds the answer. Every Tiger 5 failure category points to a specific segment tab where the root cause investigation begins.
+________________
+
+
+The Right Conversation
+Tiger 5 is the most natural entry point for the post-round coach-player conversation. Rather than reviewing every stat together, review Tiger 5 first. Identify which category had the most failures. Then navigate together to the relevant segment tab. This structure keeps the conversation focused on what actually cost strokes — and what to do about it.
+07 — Dashboard Architecture
+The Segment Tabs
+Beyond Tiger 5, Golf Intelligence is organized into six segment tabs — one for each pillar of the game. Each tab exists to answer a specific diagnostic question triggered by what Tiger 5 surfaces. This is the layer where "what failed" becomes "why it failed."
+
+
+Tiger 5 Driving Approach Short Game Putting Recovery Penalty
+________________
+
+
+Tiger 5 is the landing view — segment tabs are accessed after identifying a failure pattern
+
+
+
+
+Driving
+Penalty rate, tee-shot distance, fairway position, hole-by-hole tee strategy patterns
+
+
+Approach
+SG: Approach by distance band, GIR rate, first-putt proximity, miss direction patterns
+
+
+Short Game
+Scrambling rate, up-and-down %, proximity from chip/pitch, lie-type performance
+
+
+Putting
+SG: Putting, first-putt distance distribution, make rate by distance zone, three-putt rate
+
+
+Recovery
+Recovery success rate, shot difficulty distribution, outcomes by lie and distance
+
+
+Penalty
+Penalty frequency, hole clustering, shot type at time of penalty, course management patterns
+Each tab is built to answer the root cause question for the Tiger 5 failures that point to its segment. The Putting tab does not exist to give you every putting statistic available — it exists to tell you whether a three-putt pattern is a genuine putting problem or a first-putt distance problem created upstream. The Recovery tab does not exist to celebrate scrambling skill — it exists to confirm whether doubles are coming from recovery failure or from an upstream driving or approach cause.
+
+
+Tab Navigation Principle
+Never open a segment tab without a Tiger 5 failure pointing you there. Opening tabs at random produces the same noise problem that Golf Intelligence is designed to eliminate. Tabs are answers to questions Tiger 5 is asking — not browsing destinations.
+08 — Analysis Workflow
+The Analysis Workflow
+Golf Intelligence is designed to be used in a specific sequence. Following this sequence takes approximately 10–15 minutes after a competitive round and produces a clear, actionable finding every time.
+
+
+
+
+01
+
+
+Land on Tiger 5
+Open Golf Intelligence after the round and read the Tiger 5 landing view. Count total failures. Identify which category or categories drove the most damage. Do not navigate anywhere else yet. The single most important question is: where did the scoring damage actually come from?
+________________
+
+
+02
+
+
+Identify the Lead Category
+Which Tiger 5 category had the most failures, or the highest concentration? This is your diagnostic starting point — not the most emotionally salient event of the round, not the shot you remember most vividly, but the category that appeared most consistently. Pattern beats memory. Trust the count.
+________________
+
+
+03
+
+
+Navigate to the Relevant Segment Tab
+Each Tiger 5 category maps to a segment tab. Navigate to that tab and read the root cause data. For three-putts, check first-putt distance before concluding anything about putting skill. For doubles, check Driving and Recovery before Short Game. For par-5 bogeys, check Approach on par 5s before assuming the issue is par-5 specific. Follow the causal chain upstream.
+________________
+
+
+04
+
+
+Confirm or Redirect
+The segment tab data will either confirm the surface-level diagnosis or redirect you to a different pillar. A three-putt problem with 30-foot average first putts is confirmed as an approach problem — redirect to the Approach tab. A three-putt problem with 20-foot average first putts and poor make rates is a genuine putting driver — confirmed. This step prevents the most common analytical error in player development: treating symptoms as root causes.
+________________
+
+
+05
+
+
+Track Across Rounds — Escalate to PlayerPath
+A finding from a single round is a data point. The same finding appearing across three to four competitive rounds is a pattern — and a pattern is the threshold for PlayerPath driver designation. When Golf Intelligence surfaces a consistent Tiger 5 pattern, that is the trigger to move into a full PlayerPath review: pillar ranking, driver designation, and practice design built around the confirmed root cause.
+________________
+09 — Intelligence Principles
+Three Principles
+
+
+
+
+I
+
+
+The Why Is Upstream
+The most visible failures in a round are almost never the root cause. Three-putts are visible. Scrambling failures are visible. Short-iron bogeys feel inexcusable. But the data consistently shows that visible failures at the end of the hole are frequently expressions of earlier-chain breakdowns. The first instinct to fix the thing you remember most is usually wrong. Golf Intelligence is designed to interrupt that instinct and trace every failure back to its earliest causal point. Always follow the chain upstream before accepting a surface-level explanation.
+________________
+
+
+II
+
+
+Frequency Determines Priority
+A gap in performance only becomes a performance driver when it occurs frequently enough to materially impact scoring. A player who misses every fairway bunker shot they face may have a significant technical weakness — but if they encounter one fairway bunker shot per tournament, fixing it will not change their scoring average. Golf Intelligence only surfaces patterns at a volume where closing the gap would produce a meaningful scoring outcome. Low-frequency weaknesses are logged as observations — they do not become development priorities until their volume warrants it.
+________________
+
+
+III
+
+
+Context Is Not Optional
+No statistic in Golf Intelligence is interpreted in isolation. Putting SG without first-putt distance context is incomplete. Short game SG without lie-type and miss-difficulty segmentation is misleading. Approach SG without approach distance distribution is a fraction of the story. Every metric in Golf Intelligence is paired with the contextual data required to interpret it correctly. The goal is not to show you a number — it is to show you what that number means given everything else that was happening in the hole. Numbers without context are not intelligence. They are noise with a decimal point.
+________________
+10 — Getting the Most Out of It
+Maximum Value
+Golf Intelligence rewards consistent use. A single round of Tiger 5 data is a data point. Ten rounds is a pattern library. The players and coaches who get the most out of the platform are those who make the post-round analysis workflow habitual — 10–15 minutes after every competitive round, following the same five-step sequence.
+
+
+GI
+The goal is not to understand your round. The goal is to understand why your round scored the way it did — and to know exactly where to focus next.
+Theory Golf Intelligence Framework · Golf Intelligence v1.0 — Coach & Player Edition
+Three habits separate players who improve through data from those who collect it without acting on it:
+* 01 Always start with Tiger 5, never with a segment tab. The Tiger 5 view is not a summary — it is the prioritization engine. It decides which segment tab you open and which statistic you read first. Bypassing it is the analytical equivalent of skipping the diagnosis and going straight to treatment.
+________________
+* 02 Follow failures upstream before accepting the obvious explanation. The most emotionally vivid failure of the round is almost never the most important one. When Golf Intelligence points you to a segment tab, read the context data before reading the headline metric. First-putt distance before make rate. Tee-shot penalty rate before recovery success rate. Approach proximity before scrambling rate.
+________________
+* 03 Use consistent patterns to trigger PlayerPath reviews. Golf Intelligence and PlayerPath are designed to operate together. When Tiger 5 surfaces the same failure category in three or more consecutive competitive rounds, that is the signal to escalate: open a full PlayerPath pillar review with your coach, confirm the performance driver, and restructure practice around that driver until the data shows improvement. The cadence is weekly intelligence → periodic driver review → practice design → retest.
+________________
+
+
+
+
+Tiger 5
+Always the entry point
+
+
+Why
+The only question that matters
+
+
+6
+Tabs — triggered, not browsed
+
+
+1
+Driver to fix at a time
+References
+Cited Sources
+
+
+1
+Fawcett, S. / DECADE Golf. Tiger 5 framework. Documented publicly in: Bamberger, M. (2024, March). The crucial par-5 strategy peak Tiger Woods used. Golf Digest. Retrieved from golfdigest.com. Tiger Woods' self-reported target: ≤6 Tiger 5 failures per tournament, approximately 1.5 per round.
+________________
+2
+Golf Digest Advanced Stats Team. (2025, December). Tiger @ 50: Advanced stats reveal key insights about Tiger Woods' peak years. Golf Digest. Retrieved from golfdigest.com. ShotLink-based analysis of Woods 2003–2010; tee-shot penalty rate 1.1%; penalty avoidance documented as primary tee objective.
+________________
+3
+Broadie, M. (2012). Assessing golfer performance on the PGA TOUR. Interfaces, 42(2), 146–165. Causal chain analysis: approach play from 150 yards is the single strongest predictor of overall player quality. Long-game shots explain approximately 66% of score variability.
+THEORY/GOLF · Coach & Player Edition
+Golf Intelligence v1.0 · PlayerPath Performance Driver · theory.golf/golf-intelligence

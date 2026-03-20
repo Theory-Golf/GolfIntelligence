@@ -1,0 +1,353 @@
+﻿THEORY/GOLF
+* White Paper
+* PlayerPath v1.0
+* Intelligence Framework
+PATH
+
+
+Theory Golf · Intelligence Framework
+PlayerPath
+Framework
+An evidence-based model for diagnosing competitive golf performance. Built on shot-level data, grounded in causal theory, and designed to identify what is actually driving scores.
+________________
+Version 1.0 Classification: Coach & Developer Reference Theory Golf Intelligence System
+
+
+
+
+
+
+4
+Performance Pillars
+
+
+⅔
+Score Variance from Long Game
+
+
+1B+
+Shots in Referenced Datasets
+
+
+Shot
+Level Attribution Unit
+
+
+
+
+Contents
+________________
+* Foundation
+* Abstract
+* Purpose & Philosophy
+* Theoretical Basis
+* Core Framework
+* Performance Driver Defined
+* The Causal Chain
+* Four Pillars
+* Data Foundation
+* Data Sources
+* Supporting Evidence
+* Application
+* Actionability Standard
+* Diagnostic Criteria
+* Dashboard Specification
+00 — Abstract
+What This Document Is
+PlayerPath is an evidence-based performance intelligence framework built for competitive golfers. It is designed to answer a single, fundamental question: What, specifically, is driving my scores — and what should I work on first to change them?
+This document serves two concurrent purposes. For coaches and players, it establishes the conceptual model, terminology, and diagnostic logic underpinning the PlayerPath system. For developers, it defines the data architecture, pillar structure, and display requirements needed to render the PlayerPath dashboard accurately and consistently.
+
+
+Design Intent
+PlayerPath is not a statistics product. It is a theory of performance diagnosis — a structured method for distinguishing root causes from downstream effects in a player's scoring chain, and translating that analysis into prioritized, actionable development targets.
+01 — Purpose
+Purpose & Philosophy
+Competitive golf produces a significant volume of data, but data volume is not diagnostic clarity. A player may see that they rank poorly in Greens in Regulation and conclude their iron play needs work — but the GIR number says nothing about whether the misses originate from approach execution, from tee shots that created difficult approach angles, or from misaligned distance expectations. Without a causal framework, the data is a description of what happened, not an explanation of why.
+PlayerPath exists to bridge that gap. It is built on three philosophical commitments:
+
+
+I
+
+
+Evidence Over Intuition
+Player and coach perception is frequently distorted by outcome bias and selective memory. A player who posts a low round tends to inflate the quality of their ball-striking; a poor round amplifies perceived putting failures. Shot-level data provides a record that is immune to these biases. PlayerPath anchors every conclusion to this record — specifically to starting distance, ending distance, lie context, and strokes gained attribution derived from the Golf Intelligence system.
+________________
+
+
+II
+
+
+Causation Over Correlation
+The most visible weakness in a player's game is rarely the most important one. Elevated putting stress may reflect approach execution failures upstream, not a deficiency in putting skill itself. A scrambling percentage that looks poor may be the natural consequence of an approach pattern that consistently misses short-side. PlayerPath evaluates performance within its causal structure to ensure the true driver is identified — not the most visible symptom at the end of the hole.
+________________
+
+
+III
+
+
+Actionability Over Comprehensiveness
+The output of PlayerPath is intentionally constrained. Rather than presenting every available metric, it surfaces a small number of prioritized performance drivers — each supported by a clear explanation and tied to a specific coaching or practice intervention. This constraint is a feature, not a limitation. It ensures that training time and competitive strategy remain focused on the changes most likely to reduce scoring average.
+________________
+02 — Theoretical Basis
+Theoretical Basis
+The intellectual foundation of PlayerPath is Mark Broadie's strokes gained framework, originally developed at Columbia Business School using PGA Tour ShotLink data beginning in 2003. Broadie's core insight — that every shot can be evaluated by comparing the scoring position it creates to the scoring position it started from — solved a measurement problem that had existed since the game began. For the first time, a drive, an approach shot, a chip, and a putt could all be expressed in the same unit: strokes relative to expectation.
+
+
+"
+Long-game shots — those starting over 100 yards from the hole — explain approximately two-thirds of score variability among competitive golfers. Putting, long assumed to be the dominant determinant of scoring, accounts for roughly 15%.
+Broadie, M. — Columbia Business School · ShotLink Research 2003–2012
+This finding is counterintuitive and consequential. It means that the common coaching emphasis on putting improvement — driven by the visible drama of missed short putts and the ancient adage "drive for show, putt for dough" — systematically misdirects practice investment for most competitive players. PlayerPath incorporates this research not to minimize the importance of putting, but to ensure it is weighted proportionally against the full scoring chain.
+The framework also draws on shot-level databases beyond ShotLink. Arccos Golf, tracking over one billion shots across 22 million rounds worldwide, has independently validated several key principles — including the observation that proximity to the hole on approach shots is a stronger predictor of putting performance than any standalone putting metric. Shot Scope's comparative research across handicap tiers reinforces the finding that approach play, not driving accuracy, is where the largest separation between skill levels occurs. Trackman's dispersion data provides the biomechanical layer that connects impact variables to on-course shot patterns.
+Together, these sources constitute a coherent empirical picture: competitive golf performance is determined primarily by long-game execution, with approach quality serving as the single highest-leverage variable across nearly all player populations. PlayerPath is designed to operationalize this finding within a player-specific diagnostic framework.
+03 — Core Concept
+Performance Driver Defined
+The central unit of analysis in PlayerPath is the Performance Driver — a construct borrowed directly from the vocabulary of financial analysis and adapted for shot-level golf diagnostics. In equity research, a performance driver is a specific, quantifiable factor that explains why a company's financial outcomes are what they are, and that identifies an actionable path toward a different result. PlayerPath applies the same logic to strokes gained.
+
+
+Performance Driver
+A specific, measurable, and repeatable aspect of a player's game that has a causal impact on scoring outcomes across a sufficient sample of shots. A performance driver is not a narrative label or subjective impression — it is an explanation supported by shot-level evidence. A factor qualifies as a driver only when it demonstrates a consistent pattern, exerts material influence on strokes gained, and points toward a realistic avenue for intervention through coaching, practice design, or competitive strategy.
+This definition has three components that must all be satisfied simultaneously:
+* 01 Measurable and Repeatable. The factor must be observable in shot-level data across multiple rounds — not a single outlier event. One three-putt on a specific green is an event. A consistent pattern of elevated first-putt distances from a particular approach range is a driver candidate. Sample requirements vary by category and are addressed in each pillar's diagnostic protocol.
+________________
+* 02 Material Influence on Strokes Gained. The pattern must have a demonstrable impact on SG values — not merely a statistical correlation, but a causal relationship supported by the shot sequence. A factor that correlates with scoring but is downstream of an earlier, more fundamental issue is classified as an effect, not a driver. Driver identification requires tracing each pattern back to its earliest causal point in the hole.
+________________
+* 03 Actionable Intervention Point. A performance driver must point toward a clear objective that can be intentionally pursued — a technical adjustment, a strategic change, a practice protocol, or a course management rule. A finding that a player underperforms from 150–175 yards is a symptom. Identifying that the underperformance traces to a consistent distance gap versus actual carry distance — and that this is correctable through a specific calibration protocol — is a driver.
+________________
+04 — Structural Logic
+The Causal Chain
+Golf scoring is sequential. Each shot both constrains and enables what follows. This structure means that performance issues visible at the end of the hole — three-putts, scrambling failures, penalty strokes — are frequently expressions of earlier-sequence failures, not independent deficiencies in the skills most visibly implicated.
+PlayerPath models performance as a four-stage causal chain. Each stage inherits its constraints from the stage before it.
+
+
+
+
+01
+Driving
+Establishes the initial conditions of the hole. Sets approach distance, lie quality, and angle to the pin — the constraints within which all subsequent shots operate.
+
+
+02
+Approach
+Converts tee-shot position into scoring opportunity. Determines first-putt distance, pin-access angle, and the frequency of short-game stress situations.
+
+
+03
+Short Game
+Manages approach misses. Quality of up-and-down execution is materially shaped by the difficulty of the lies and positions created upstream.
+
+
+04
+Putting
+Converts scoring opportunity to score. First-putt distance — the primary putting stress variable — is largely a function of approach quality, not putting skill alone.
+
+
+Diagnostic Risk
+The visibility problem. In round-level analysis, putting failures and scrambling failures are the most emotionally salient events. They are also the most likely to generate misdiagnosis. PlayerPath requires tracing each surface-level pattern upstream through the causal chain before concluding that the observed stage is the true driver. A player with apparent putting stress who generates approach shots at consistent 30+ foot distances is not a poor putter — they are an approach player creating insufficient opportunity.
+This causal model has a direct implication for how improvement priorities are set. A deficiency identified at Stage 3 (Short Game) or Stage 4 (Putting) should only be designated a primary driver if the upstream stages have been evaluated and found to be adequate relative to competitive benchmarks. Directing practice resources toward putting when approach distance is the structural problem is the most common and most costly error in player development.
+05 — Architecture
+The Four Pillars
+PlayerPath is organized around four primary pillars corresponding to the four stages of the scoring chain. These pillars are not treated as independent silos. They are evaluated both in isolation — to identify within-category performance drivers — and in sequence, to assess how upstream performance is shaping downstream outcomes.
+
+
+
+
+01 — Driving
+Off the Tee
+Establishes the parameters within which the hole is played. Evaluated primarily through SG: Off the Tee, with secondary analysis of approach distance distribution, lie frequency, and penalty exposure rate. Driver selection is examined both as a skill variable and a strategic variable.
+
+
+02 — Approach
+Into the Green
+The highest-leverage pillar in competitive golf. Evaluated through SG: Approach, proximity-to-pin by distance bucket, GIR quality (not just frequency), and miss-pattern analysis. Approach performance is the primary predictor of putting stress and scrambling demand downstream.
+
+
+03 — Short Game
+Around the Green
+Manages misses generated upstream. Evaluated through SG: Around the Green, up-and-down conversion rate by lie type, and miss-difficulty context. Short game analysis must account for whether scrambling demand is self-generated or driven by approach deficiency.
+
+
+04 — Putting
+On the Green
+Converts opportunity to score. Evaluated through SG: Putting, with first-putt distance distribution as the primary context variable. Three-putt avoidance and conversion rates from the birdie zone are secondary indicators. Putting analysis is only valid when first-putt distance context has been established.
+Within each pillar, performance is measured against three calibrated benchmarks derived from the Golf Intelligence system: PGA Tour (aspirational ceiling), College +3 (competitive peer baseline), and Scratch / 0 handicap (intermediate reference). These benchmarks allow the analysis to distinguish between a player who is below Tour level — which is nearly universal among college competitors — and a player whose specific pillar performance falls meaningfully below their competitive cohort in a way that materially influences their scoring position.
+06 — Data Infrastructure
+Data Sources & Validation
+PlayerPath's diagnostic logic is grounded in, and validated against, five primary data sources. These sources are complementary: each captures a different layer of golf performance, and together they provide a comprehensive empirical foundation for the framework's principles and benchmarks.
+
+
+Source
+	Data Layer
+	Primary Contribution
+	Population
+ 
+	ShotLink
+PGA Tour / CDW
+	Shot coordinates, lie classification, SG attribution
+	Strokes gained baseline calculations; scoring-position value tables; benchmark construction
+	~1.5M shots/season; PGA Tour since 2003
+	Trackman
+Flight scope + impact
+	Launch conditions, dispersion, carry distance, spin profile
+	Impact-to-outcome linkage; dispersion standards; consistency benchmarks by club and distance
+	Tour + college + amateur; range and on-course
+	Arccos
+On-course GPS tracking
+	Real-world shot positions, proximity, club selection, on-course SG
+	Amateur benchmark validation; approach proximity by distance bucket; putting stress correlation
+	1B+ shots; 22M rounds; 162 countries
+	Data Golf
+Model-based analytics
+	Skill decomposition, predictive SG, course-adjusted baselines
+	Methodological validation; tour-independent SG baseline construction; cross-season comparisons
+	PGA Tour + DP World; advanced modeling
+	Shot Scope
+Wearable GPS + SG
+	On-course shot tracking; SG by lie type, distance, handicap tier
+	Handicap-segmented SG benchmarks; amateur vs. Tour comparison; skill-tier differentiation
+	200M+ shots; amateur golfers globally
+	Within the PlayerPath system itself, primary shot-level data is sourced from the Golf Intelligence platform, which captures starting and ending distance, lie classification, and strokes gained attribution for every tracked competitive shot. Tiger 5 failure classifications and root-cause codes are also generated within this system. The external sources above serve as validation and benchmarking references — they inform the baseline values against which a player's Golf Intelligence data is evaluated.
+07 — Research Foundation
+Supporting Evidence
+The foundational principles of PlayerPath — particularly the primacy of approach play, the causal structure of the scoring chain, and the tendency to overweight putting in player development — are well-supported across independent research streams. The following data points represent key evidentiary anchors.
+
+
+
+
+ShotLink / Broadie Research
+~66%
+Share of PGA Tour score variability attributable to long-game shots (starting over 100 yards from the hole). Putting accounts for approximately 15% of scoring differential across the field.
+
+
+Shot Scope Amateur Data
+Approach
+Identified as the single largest skill differential between handicap tiers — exceeding driving accuracy, which showed only ~4% difference between scratch and 20-handicap golfers in fairways hit.
+
+
+Arccos — 100M+ Shots
+Proximity
+First-putt distance is the primary predictor of putting performance. Improving approach proximity from 30 feet to 15 feet reduces expected putts per GIR by more than any standalone putting intervention.
+
+
+Arccos Layup Study
+62 ft
+Average proximity to the hole for 20+ handicap golfers on 100–120 yard wedge shots — 21 feet farther than from 60–80 yards. Confirms distance management as a strategic driver, not just an execution variable.
+
+
+Broadie — Tiger Woods Analysis
+2.08 SG
+Of Tiger's 3.20 SG/round advantage in peak years, 2.08 strokes came from long-game shots — approximately 65% of his total advantage from tee shots and approaches alone.
+
+
+Data Golf Methodology
+Tour-ind.
+Baseline independence from tour composition means SG benchmarks remain stable across seasons and competition levels — a requirement for meaningful year-over-year player development tracking.
+
+
+Financial Analogy
+In the same way that a financial analyst distinguishes between revenue-driven earnings growth and margin compression masked by accounting adjustments, PlayerPath distinguishes between genuine putting deficiency and putting stress manufactured by upstream approach failures. The metric that explains the result is not always the metric most visible in the final number.
+08 — Output Standard
+The Actionability Standard
+A performance driver that cannot be acted upon is a diagnosis without a prescription. PlayerPath applies an actionability standard to every driver it surfaces: the finding must point toward a clear, realistic intervention that can be pursued in practice, coaching, or competition.
+This standard is applied at the output stage of analysis. After the causal chain has been traced, the highest-leverage driver has been identified, and the finding has been validated against sample requirements, the analysis produces three components:
+
+
+A
+
+
+The Finding
+A precise, data-supported statement of the pattern. Not "your approach play is poor" but "your SG: Approach from 125–175 yards is −0.42 per round over the last 12 competitive rounds, driven primarily by right-miss patterns that leave short-side recovery positions."
+________________
+
+
+B
+
+
+The Causal Explanation
+An explanation of why this pattern is occurring and how it connects to scoring outcomes. This explanation must address whether the driver is technical (impact or carry distance), strategic (target selection, club choice), or positional (a consequence of tee-shot patterns that are creating difficult approach angles).
+________________
+
+
+C
+
+
+The Intervention
+A specific, realistic next step — expressed in coaching language, practice design terms, or strategic rules — that addresses the root cause rather than the symptom. The intervention must be proportional to the magnitude of the driver: large drivers warrant primary practice investment; marginal drivers warrant monitoring, not restructuring.
+________________
+09 — Quality Standards
+Diagnostic Criteria
+PlayerPath applies a consistent set of diagnostic criteria to prevent false-positive driver identification — the designation of a symptom as a root cause. These criteria are applied sequentially before any factor is classified as a Performance Driver.
+* 01 Sufficient Sample. The pattern must appear across a minimum sample threshold appropriate to its category. Short-game performance is inherently higher-variance than approach or tee-shot performance, and requires a larger sample to distinguish signal from noise. Single-round findings are flagged as observations, not drivers.
+________________
+* 02 Upstream Evaluation Completed. No Stage 3 or Stage 4 factor may be designated a primary driver until Stage 1 and Stage 2 have been evaluated against competitive benchmarks. If Driving or Approach performance falls materially below the College +3 benchmark, those deficiencies take diagnostic priority regardless of the magnitude of downstream metrics.
+________________
+* 03 Context Separation. SG metrics must be evaluated with relevant contextual controls applied. Putting SG must be paired with first-putt distance distribution. Short game SG must be segmented by lie type and miss-difficulty classification. Approach SG must account for approach distance distribution influenced by tee-shot outcomes.
+________________
+* 04 Materiality Threshold. The driver's estimated impact on scoring must meet a minimum materiality threshold — typically 0.3 SG/round or greater — to warrant designation as a primary development target. Marginal inefficiencies below this threshold are tracked but do not receive primary investment of practice resources or coaching attention.
+________________
+* 05 Trajectory Alignment. Where multi-round history exists, the pattern should be directionally consistent. An isolated performance failure in a specific category that contradicts a longer-term positive trend is an event, not a driver. Genuine drivers appear persistently across competition conditions, course types, and rounds.
+________________
+10 — Developer Reference
+Dashboard Specification
+The PlayerPath dashboard is the primary interface through which players and coaches interact with the framework. It is designed to present a small number of prioritized findings clearly, without requiring the user to navigate raw statistics or interpret unlabeled data. The following specifications govern how the PlayerPath module should be rendered within the Golf Intelligence platform.
+
+
+Component
+	Data Input
+	Display Requirement
+	Color Token
+ 
+	Pillar SG Cards
+	SG per round by pillar; last 10 rounds
+	KPI hero card format; delta vs. College +3 benchmark; trend indicator
+	Drive / App / etc.
+	Causal Chain View
+	SG by stage; upstream-downstream linkage flags
+	Sequential flow diagram; highlight stages where upstream constraint is active
+	Segment palette
+	Driver Cards
+	Identified performance drivers from diagnostic engine
+	Max 3 primary drivers displayed; each with finding, explanation, intervention
+	High Priority Monitor
+	Proximity Chart
+	Approach proximity by distance bucket (25-yd increments)
+	Bar or scatter; overlay College +3 benchmark line; color by above/below
+	--data-positive / --data-negative
+	Tiger 5 Integration
+	Tiger 5 failure classifications with root-cause codes
+	Frequency table by pillar; root-cause distribution; trend over last 20 rounds
+	Segment palette
+	Benchmark Rail
+	PGA Tour / College +3 / Scratch baselines
+	Persistent reference rail visible in all SG visualizations; user-toggleable
+	--border-strong (neutral reference line)
+	
+
+Rendering Principle
+The dashboard must never display raw data without context. Every SG value must be accompanied by its benchmark reference and its position in the causal chain. Color semantics follow the Theory Golf data palette strictly: --data-positive (above benchmark), --data-caution (within 0.3 SG of benchmark), --data-negative (materially below benchmark). Segment identity colors — magenta for Driving, gold for Approach, green for Short Game, blue for Putting — are invariant and must not be modified.
+The output of the PlayerPath dashboard is not a leaderboard and is not a raw statistics page. It is a prioritized, explained, and actionable summary of what is driving a specific player's scoring outcomes in a specific performance window. The language displayed to coaches and players should reflect this purpose: declarative, precise, and forward-oriented toward intervention.
+
+
+TG
+PlayerPath exists to answer one question — what, specifically, is driving my scores, and what do I work on first?
+Theory Golf Intelligence Framework · PlayerPath v1.0
+Foundation document for dashboard development and coach methodology.
+
+
+
+
+4
+Pillars in Sequence
+
+
+3
+Benchmarks Applied
+
+
+5
+Diagnostic Criteria
+
+
+1
+Question Answered
+THEORY/GOLF · Intelligence Framework
+PlayerPath v1.0 · Confidential — Coach & Developer Reference
