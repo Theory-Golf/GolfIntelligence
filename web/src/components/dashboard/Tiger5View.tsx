@@ -314,7 +314,7 @@ function StatCardWithSG({
       <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between' }}>
         <div>
           <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>% of Fails</div>
-          <div className="value-stat" style={{ fontSize: '12px' }}>{percentage.toFixed(1)}%</div>
+          <div className="value-stat" style={{ fontSize: '12px' }}>{percentage.toFixed(0)}%</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Total SG</div>
@@ -444,8 +444,8 @@ function RootCauseByFailTypeSection({ rootCauseByFailType, totalFails }: { rootC
                       <tr key={idx} style={{ borderBottom: '1px solid var(--dark)' }}>
                         <td style={{ padding: '6px', color: 'var(--chalk)' }}>{item.label}</td>
                         <td style={{ padding: '6px', textAlign: 'right', color: 'var(--chalk)' }}>{item.count}</td>
-                        <td style={{ padding: '6px', textAlign: 'right', color: 'var(--ash)' }}>{item.percentageOfFailType.toFixed(1)}%</td>
-                        <td style={{ padding: '6px', textAlign: 'right', color: 'var(--ash)' }}>{item.percentageOfTotal.toFixed(1)}%</td>
+                        <td style={{ padding: '6px', textAlign: 'right', color: 'var(--ash)' }}>{item.percentageOfFailType.toFixed(0)}%</td>
+                        <td style={{ padding: '6px', textAlign: 'right', color: 'var(--ash)' }}>{item.percentageOfTotal.toFixed(0)}%</td>
                         <td style={{ padding: '6px', textAlign: 'right', color: getStrokeGainedColor(item.sgTotal || 0) }}>{formatStrokesGained(item.sgTotal || 0)}</td>
                       </tr>
                     ))}
@@ -813,7 +813,7 @@ function RootCauseSection({ rootCause, totalFailHoles }: { rootCause: RootCauseM
               <div className="value-stat">{card.value}</div>
               <div style={{ marginTop: '8px' }}>
                 <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>% of Fails</div>
-                <div className="value-stat" style={{ fontSize: '11px' }}>{percentage.toFixed(1)}%</div>
+                <div className="value-stat" style={{ fontSize: '11px' }}>{percentage.toFixed(0)}%</div>
               </div>
               <div style={{ marginTop: '8px' }}>
                 <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>Total SG</div>

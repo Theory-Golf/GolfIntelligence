@@ -85,7 +85,7 @@ function ShortGameLeaveDistributionSection({ filteredShots }: { filteredShots: P
       <div style={{ background: 'var(--court)', border: '1px solid var(--scarlet)', borderRadius: '4px', padding: '12px' }}>
         <div style={{ color: 'var(--chalk)', fontWeight: 600, marginBottom: '8px' }}>{data.label}</div>
         <div style={{ fontSize: '12px', color: 'var(--cement)', marginBottom: '4px' }}>Count: <span style={{ color: 'var(--chalk)' }}>{data.count}</span></div>
-        <div style={{ fontSize: '12px', color: 'var(--cement)' }}>Percentage: <span style={{ color: 'var(--chalk)' }}>{data.percentage.toFixed(1)}%</span></div>
+        <div style={{ fontSize: '12px', color: 'var(--cement)' }}>Percentage: <span style={{ color: 'var(--chalk)' }}>{data.percentage.toFixed(0)}%</span></div>
       </div>
     );
   };
@@ -415,7 +415,7 @@ export function ShortGameView({ metrics, shortGameHeatMapData, filteredShots }: 
             </div>
             <div style={{ textAlign: 'right' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>+ Short Game</div>
-              <div className="value-stat">{positiveSGPct.toFixed(1)}%</div>
+              <div className="value-stat">{positiveSGPct.toFixed(0)}%</div>
             </div>
           </div>
         </div>
@@ -426,7 +426,7 @@ export function ShortGameView({ metrics, shortGameHeatMapData, filteredShots }: 
             <div className="label" style={{ color: 'var(--ash)' }}>&lt;= 8ft Fairway</div>
           </div>
           <div className="value-hero" style={{ color: getProximityColor(within8FeetFairwayPct) }}>
-            {within8FeetFairwayPct.toFixed(1)}%
+            {within8FeetFairwayPct.toFixed(0)}%
           </div>
           <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
             <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>
@@ -441,7 +441,7 @@ export function ShortGameView({ metrics, shortGameHeatMapData, filteredShots }: 
             <div className="label" style={{ color: 'var(--ash)' }}>&lt;= 8ft Rough</div>
           </div>
           <div className="value-hero" style={{ color: getProximityColor(within8FeetRoughPct) }}>
-            {within8FeetRoughPct.toFixed(1)}%
+            {within8FeetRoughPct.toFixed(0)}%
           </div>
           <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
             <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>
@@ -456,7 +456,7 @@ export function ShortGameView({ metrics, shortGameHeatMapData, filteredShots }: 
             <div className="label" style={{ color: 'var(--ash)' }}>&lt;= 8ft Sand</div>
           </div>
           <div className="value-hero" style={{ color: getProximityColor(within8FeetSandPct) }}>
-            {within8FeetSandPct.toFixed(1)}%
+            {within8FeetSandPct.toFixed(0)}%
           </div>
           <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
             <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>

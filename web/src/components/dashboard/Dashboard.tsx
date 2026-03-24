@@ -79,7 +79,7 @@ export default function Dashboard() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <h1>Golf <em>Intelligence</em></h1>
+          <h1><span style={{ fontFamily: 'var(--font-body)' }}>Golf</span> <em>Intelligence</em></h1>
           <p className="subtitle">By: Theory Golf</p>
         </div>
         {/* Benchmark Selector */}

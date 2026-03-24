@@ -182,7 +182,7 @@ export function PlayerPathView({ drivers: _drivers, playerPathMetrics, performan
         <div>
           <span style={{ color: 'var(--ash)' }}>Value: </span>
           <span style={{ color: 'var(--chalk)', fontWeight: 600 }}>
-            {typeof data.value === 'number' ? data.value.toFixed(1) : data.fwHitRate?.toFixed(1)}%
+            {typeof data.value === 'number' ? data.value.toFixed(0) : data.fwHitRate?.toFixed(0)}%
           </span>
         </div>
         {data.sgImpact !== undefined && (
@@ -217,7 +217,7 @@ export function PlayerPathView({ drivers: _drivers, playerPathMetrics, performan
               <tr key={idx} style={{ borderBottom: '1px solid var(--dark)' }}>
                 <td style={{ padding: '4px', color: 'var(--chalk)' }}>{band.label}</td>
                 <td style={{ padding: '4px', textAlign: 'right', color: 'var(--cement)' }}>{band.totalShots}</td>
-                <td style={{ padding: '4px', textAlign: 'right', color: 'var(--chalk)' }}>{band.girRate?.toFixed(1)}%</td>
+                <td style={{ padding: '4px', textAlign: 'right', color: 'var(--chalk)' }}>{band.girRate?.toFixed(0)}%</td>
                 <td style={{ padding: '4px', textAlign: 'right', color: band.sgTotal < 0 ? 'var(--scarlet)' : 'var(--under)' }}>
                   {band.sgTotal?.toFixed(2)}
                 </td>
@@ -235,11 +235,11 @@ export function PlayerPathView({ drivers: _drivers, playerPathMetrics, performan
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', flexWrap: 'wrap', gap: '8px' }}>
         <div>
           <span style={{ color: 'var(--ash)' }}>Poor Lag Rate: </span>
-          <span style={{ color: 'var(--chalk)', fontWeight: 600 }}>{data.poorLagRate?.toFixed(1)}%</span>
+          <span style={{ color: 'var(--chalk)', fontWeight: 600 }}>{data.poorLagRate?.toFixed(0)}%</span>
         </div>
         <div>
           <span style={{ color: 'var(--ash)' }}>Dispersion: </span>
-          <span style={{ color: 'var(--chalk)', fontWeight: 600 }}>{data.speedDispersionBand?.toFixed(1)}ft</span>
+          <span style={{ color: 'var(--chalk)', fontWeight: 600 }}>{data.speedDispersionBand?.toFixed(0)}ft</span>
         </div>
         <div>
           <span style={{ color: 'var(--ash)' }}>Centering: </span>
@@ -269,7 +269,7 @@ export function PlayerPathView({ drivers: _drivers, playerPathMetrics, performan
               <tr key={idx} style={{ borderBottom: '1px solid var(--dark)' }}>
                 <td style={{ padding: '4px', color: 'var(--chalk)' }}>{bucket.label}</td>
                 <td style={{ padding: '4px', textAlign: 'right', color: 'var(--cement)' }}>{bucket.totalPutts}</td>
-                <td style={{ padding: '4px', textAlign: 'right', color: 'var(--chalk)' }}>{bucket.makePct?.toFixed(1)}%</td>
+                <td style={{ padding: '4px', textAlign: 'right', color: 'var(--chalk)' }}>{bucket.makePct?.toFixed(0)}%</td>
                 <td style={{ padding: '4px', textAlign: 'right', color: bucket.avgSG < 0 ? 'var(--scarlet)' : 'var(--under)' }}>
                   {bucket.avgSG?.toFixed(3)}
                 </td>
@@ -313,7 +313,7 @@ export function PlayerPathView({ drivers: _drivers, playerPathMetrics, performan
                   <td style={{ padding: '4px', textAlign: 'right', color: 'var(--cement)' }}>{metric.totalShots}</td>
                   <td style={{ padding: '4px', textAlign: 'right', color: 'var(--chalk)' }}>{metric.inside8Feet}</td>
                   <td style={{ padding: '4px', textAlign: 'right', color: metric.proximityRate < 50 ? 'var(--scarlet)' : 'var(--under)' }}>
-                    {metric.proximityRate?.toFixed(1)}%
+                    {metric.proximityRate?.toFixed(0)}%
                   </td>
                 </tr>
               ))}
@@ -342,7 +342,7 @@ export function PlayerPathView({ drivers: _drivers, playerPathMetrics, performan
                   <td style={{ padding: '4px', textAlign: 'right', color: 'var(--cement)' }}>{metric.totalShots}</td>
                   <td style={{ padding: '4px', textAlign: 'right', color: 'var(--chalk)' }}>{metric.inside8Feet}</td>
                   <td style={{ padding: '4px', textAlign: 'right', color: metric.proximityRate < 50 ? 'var(--scarlet)' : 'var(--under)' }}>
-                    {metric.proximityRate?.toFixed(1)}%
+                    {metric.proximityRate?.toFixed(0)}%
                   </td>
                 </tr>
               ))}
@@ -356,7 +356,7 @@ export function PlayerPathView({ drivers: _drivers, playerPathMetrics, performan
       <div style={{ fontSize: '11px' }}>
         <span style={{ color: 'var(--ash)' }}>Failure Rate: </span>
         <span style={{ color: data.value > 20 ? 'var(--scarlet)' : 'var(--chalk)', fontWeight: 600 }}>
-          {data.value?.toFixed(1)}%
+          {data.value?.toFixed(0)}%
         </span>
         <span style={{ color: 'var(--ash)' }}> ({data.failures}/{data.totalShortGameShots} shots)</span>
       </div>

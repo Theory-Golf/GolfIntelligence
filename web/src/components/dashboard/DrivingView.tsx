@@ -228,7 +228,7 @@ export function DrivingView({ metrics, analysis, filteredShots }: { metrics: Dri
             <div style={{ width: '6px', height: '6px', background: 'var(--scarlet)', borderRadius: '50%' }}></div>
           </div>
           <div className="value-hero" style={{ color: getPenaltyRateColor(penaltyRate) }}>
-            {penaltyRate.toFixed(1)}%
+            {penaltyRate.toFixed(0)}%
           </div>
           <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
             <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>SG Penalties</div>
@@ -269,7 +269,7 @@ export function DrivingView({ metrics, analysis, filteredShots }: { metrics: Dri
             </div>
             <div style={{ textAlign: 'right' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>+ Drives</div>
-              <div className="value-stat">{positiveSGPct.toFixed(1)}%</div>
+              <div className="value-stat">{positiveSGPct.toFixed(0)}%</div>
             </div>
           </div>
         </div>
@@ -282,20 +282,20 @@ export function DrivingView({ metrics, analysis, filteredShots }: { metrics: Dri
             </div>
           </div>
           <div className="value-hero" style={{ color: getFairwayPctColor(fairwayPct) }}>
-            {fairwayPct.toFixed(1)}%
+            {fairwayPct.toFixed(0)}%
           </div>
           {driveFilter === 'all' && (
             <div className="flex justify-between" style={{ marginTop: '16px' }}>
               <div>
                 <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Driver</div>
                 <div className="value-stat" style={{ color: getFairwayPctColor(fairwayPctDriver) }}>
-                  {fairwayPctDriver.toFixed(1)}%
+                  {fairwayPctDriver.toFixed(0)}%
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Non-Driver</div>
                 <div className="value-stat" style={{ color: getFairwayPctColor(fairwayPctNonDriver) }}>
-                  {fairwayPctNonDriver.toFixed(1)}%
+                  {fairwayPctNonDriver.toFixed(0)}%
                 </div>
               </div>
             </div>
@@ -340,7 +340,7 @@ function DrivingAnalysisSection({ analysis, totalDrives }: { analysis: DrivingAn
   const donutData = endingLocations.map(loc => ({
     name: loc.location,
     value: loc.count,
-    percentage: loc.percentage.toFixed(1),
+    percentage: loc.percentage.toFixed(0),
     strokesGained: loc.strokesGained,
     avgStrokesGained: loc.avgStrokesGained,
   }));
@@ -436,7 +436,7 @@ function DrivingAnalysisSection({ analysis, totalDrives }: { analysis: DrivingAn
                   paddingAngle={2}
                   dataKey="value"
                   nameKey="name"
-                  label={({ percent }: { percent?: number }) => `${((percent ?? 0) * 100).toFixed(1)}%`}
+                  label={({ percent }: { percent?: number }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
                   labelLine={false}
                 >
                   {donutData.map((entry, index) => (
@@ -677,7 +677,7 @@ function ProblemDriveSection({ metrics }: { metrics: ProblemDriveMetrics }) {
             <div className="value-stat">{metrics.totalPenalties}</div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>% of Drives</div>
-              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.penaltyPct.toFixed(1)}%</div>
+              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.penaltyPct.toFixed(0)}%</div>
             </div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Total SG</div>
@@ -695,7 +695,7 @@ function ProblemDriveSection({ metrics }: { metrics: ProblemDriveMetrics }) {
             <div className="value-stat">{metrics.obPenalties}</div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>% of Drives</div>
-              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.obPenaltyPct.toFixed(1)}%</div>
+              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.obPenaltyPct.toFixed(0)}%</div>
             </div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Total SG</div>
@@ -713,7 +713,7 @@ function ProblemDriveSection({ metrics }: { metrics: ProblemDriveMetrics }) {
             <div className="value-stat">{metrics.standardPenalties}</div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>% of Drives</div>
-              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.standardPenaltyPct.toFixed(1)}%</div>
+              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.standardPenaltyPct.toFixed(0)}%</div>
             </div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Total SG</div>
@@ -742,7 +742,7 @@ function ProblemDriveSection({ metrics }: { metrics: ProblemDriveMetrics }) {
             <div className="value-stat">{metrics.obstructionCount}</div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>% of Drives</div>
-              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.obstructionPct.toFixed(1)}%</div>
+              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.obstructionPct.toFixed(0)}%</div>
             </div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Total SG</div>
@@ -760,7 +760,7 @@ function ProblemDriveSection({ metrics }: { metrics: ProblemDriveMetrics }) {
             <div className="value-stat">{metrics.sandCount}</div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>% of Drives</div>
-              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.sandPct.toFixed(1)}%</div>
+              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.sandPct.toFixed(0)}%</div>
             </div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Total SG</div>
@@ -778,7 +778,7 @@ function ProblemDriveSection({ metrics }: { metrics: ProblemDriveMetrics }) {
             <div className="value-stat">{metrics.recoveryCount}</div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>% of Drives</div>
-              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.recoveryPct.toFixed(1)}%</div>
+              <div className="value-stat" style={{ fontSize: '12px' }}>{metrics.recoveryPct.toFixed(0)}%</div>
             </div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Total SG</div>

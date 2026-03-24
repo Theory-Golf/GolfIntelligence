@@ -72,7 +72,7 @@ export function ApproachView({ metrics, approachByDistance, approachFromRough, a
             </div>
             <div style={{ textAlign: 'right' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>+ Approach</div>
-              <div className="value-stat">{positiveSGPct.toFixed(1)}%</div>
+              <div className="value-stat">{positiveSGPct.toFixed(0)}%</div>
             </div>
           </div>
         </div>
@@ -83,19 +83,19 @@ export function ApproachView({ metrics, approachByDistance, approachFromRough, a
             <div className="label" style={{ color: 'var(--ash)' }}>Green Hit %</div>
           </div>
           <div className="value-hero" style={{ color: getGreenHitPctColor(greenHitPct) }}>
-            {greenHitPct.toFixed(1)}%
+            {greenHitPct.toFixed(0)}%
           </div>
           <div className="flex justify-between" style={{ marginTop: '16px' }}>
             <div>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Fairway</div>
               <div className="value-stat" style={{ color: getGreenHitPctColor(greenHitPctFairway) }}>
-                {greenHitPctFairway.toFixed(1)}%
+                {greenHitPctFairway.toFixed(0)}%
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Rough</div>
               <div className="value-stat" style={{ color: getGreenHitPctColor(greenHitPctRough) }}>
-                {greenHitPctRough.toFixed(1)}%
+                {greenHitPctRough.toFixed(0)}%
               </div>
             </div>
           </div>
@@ -107,19 +107,19 @@ export function ApproachView({ metrics, approachByDistance, approachFromRough, a
             <div className="label" style={{ color: 'var(--ash)' }}>Proximity &lt; 150yds</div>
           </div>
           <div className="value-hero" style={{ color: getProximityColor(proximityUnder150) }}>
-            {proximityUnder150.toFixed(1)} <span style={{ fontSize: '18px' }}>ft</span>
+            {proximityUnder150.toFixed(0)} <span style={{ fontSize: '18px' }}>ft</span>
           </div>
           <div className="flex justify-between" style={{ marginTop: '16px' }}>
             <div>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Prox. on Green</div>
               <div className="value-stat" style={{ color: getProximityColor(proximityUnder150OnGreen) }}>
-                {proximityUnder150OnGreen.toFixed(1)} ft
+                {proximityUnder150OnGreen.toFixed(0)} ft
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '11px' }}>Within 20ft</div>
               <div className="value-stat" style={{ color: getGreenHitPctColor(within20FeetPct) }}>
-                {within20FeetPct.toFixed(1)}%
+                {within20FeetPct.toFixed(0)}%
               </div>
             </div>
           </div>
@@ -153,13 +153,13 @@ export function ApproachView({ metrics, approachByDistance, approachFromRough, a
                   <div>
                     <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Green %</div>
                     <div className="value-stat" style={{ color: getGreenHitPctColor(bucket.greenHitPct), fontSize: '14px' }}>
-                      {bucket.greenHitPct.toFixed(1)}%
+                      {bucket.greenHitPct.toFixed(0)}%
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Prox</div>
                     <div className="value-stat" style={{ color: getProximityColor(bucket.proximity), fontSize: '14px' }}>
-                      {bucket.proximity.toFixed(1)} ft
+                      {bucket.proximity.toFixed(0)} ft
                     </div>
                   </div>
                 </div>
@@ -195,13 +195,13 @@ export function ApproachView({ metrics, approachByDistance, approachFromRough, a
                   <div>
                     <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Green %</div>
                     <div className="value-stat" style={{ color: getGreenHitPctColor(bucket.greenHitPct), fontSize: '14px' }}>
-                      {bucket.greenHitPct.toFixed(1)}%
+                      {bucket.greenHitPct.toFixed(0)}%
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div className="label" style={{ color: 'var(--ash)', fontSize: '10px' }}>Prox</div>
                     <div className="value-stat" style={{ color: getProximityColor(bucket.proximity), fontSize: '14px' }}>
-                      {bucket.proximity.toFixed(1)} ft
+                      {bucket.proximity.toFixed(0)} ft
                     </div>
                   </div>
                 </div>
@@ -405,7 +405,7 @@ function ApproachEndingLieSection({ filteredShots }: { filteredShots: ProcessedS
           Count: <span style={{ color: 'var(--chalk)' }}>{data.count}</span>
         </div>
         <div style={{ fontSize: '12px', color: 'var(--cement)' }}>
-          Percentage: <span style={{ color: 'var(--chalk)' }}>{data.percentage.toFixed(1)}%</span>
+          Percentage: <span style={{ color: 'var(--chalk)' }}>{data.percentage.toFixed(0)}%</span>
         </div>
       </div>
     );
