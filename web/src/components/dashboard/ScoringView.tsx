@@ -41,7 +41,7 @@ export function ScoringView({ metrics, birdieAndBogeyMetrics, mentalMetrics }: {
   const donutData = holeOutcomes.map(outcome => ({
     name: outcome.outcome,
     value: outcome.count,
-    percentage: outcome.percentage.toFixed(1),
+    percentage: outcome.percentage.toFixed(0),
     scoreToPar: outcome.scoreToPar,
   }));
 
@@ -134,7 +134,7 @@ export function ScoringView({ metrics, birdieAndBogeyMetrics, mentalMetrics }: {
           {/* Card 1: Bounce Back % */}
           <div className="card-stat" style={{ borderLeft: '3px solid var(--under)' }}>
             <div className="label" style={{ color: 'var(--ash)', marginBottom: '8px' }}>Bounce Back %</div>
-            <div className="value-stat" style={{ color: 'var(--under)' }}>{bounceBackPct.toFixed(1)}%</div>
+            <div className="value-stat" style={{ color: 'var(--under)' }}>{bounceBackPct.toFixed(0)}%</div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>Count</div>
               <div className="value-stat" style={{ fontSize: '12px' }}>{bounceBackCount} / {bounceBackTotal}</div>
@@ -145,7 +145,7 @@ export function ScoringView({ metrics, birdieAndBogeyMetrics, mentalMetrics }: {
           {/* Card 2: Drop Off % */}
           <div className="card-stat" style={{ borderLeft: '3px solid var(--scarlet)' }}>
             <div className="label" style={{ color: 'var(--ash)', marginBottom: '8px' }}>Drop Off %</div>
-            <div className="value-stat" style={{ color: 'var(--scarlet)' }}>{dropOffPct.toFixed(1)}%</div>
+            <div className="value-stat" style={{ color: 'var(--scarlet)' }}>{dropOffPct.toFixed(0)}%</div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>Count</div>
               <div className="value-stat" style={{ fontSize: '12px' }}>{dropOffCount} / {dropOffTotal}</div>
@@ -156,7 +156,7 @@ export function ScoringView({ metrics, birdieAndBogeyMetrics, mentalMetrics }: {
           {/* Card 3: Gas Pedal % */}
           <div className="card-stat" style={{ borderLeft: '3px solid var(--under)' }}>
             <div className="label" style={{ color: 'var(--ash)', marginBottom: '8px' }}>Gas Pedal %</div>
-            <div className="value-stat" style={{ color: 'var(--under)' }}>{gasPedalPct.toFixed(1)}%</div>
+            <div className="value-stat" style={{ color: 'var(--under)' }}>{gasPedalPct.toFixed(0)}%</div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>Count</div>
               <div className="value-stat" style={{ fontSize: '12px' }}>{gasPedalCount} / {gasPedalTotal}</div>
@@ -167,7 +167,7 @@ export function ScoringView({ metrics, birdieAndBogeyMetrics, mentalMetrics }: {
           {/* Card 4: Bogey Train % */}
           <div className="card-stat" style={{ borderLeft: '3px solid var(--scarlet)' }}>
             <div className="label" style={{ color: 'var(--ash)', marginBottom: '8px' }}>Bogey Train %</div>
-            <div className="value-stat" style={{ color: 'var(--scarlet)' }}>{bogeyTrainPct.toFixed(1)}%</div>
+            <div className="value-stat" style={{ color: 'var(--scarlet)' }}>{bogeyTrainPct.toFixed(0)}%</div>
             <div style={{ marginTop: '8px' }}>
               <div className="label" style={{ color: 'var(--ash)', fontSize: '9px' }}>Count</div>
               <div className="value-stat" style={{ fontSize: '12px' }}>{bogeyTrainCount} / {bogeyTrainTotal}</div>
@@ -216,7 +216,7 @@ export function ScoringView({ metrics, birdieAndBogeyMetrics, mentalMetrics }: {
                   paddingAngle={2}
                   dataKey="value"
                   nameKey="name"
-                  label={({ percent }: { percent?: number }) => `${((percent ?? 0) * 100).toFixed(1)}%`}
+                  label={({ percent }: { percent?: number }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
                   labelLine={false}
                 >
                   {donutData.map((entry, index) => (
@@ -272,7 +272,7 @@ export function ScoringView({ metrics, birdieAndBogeyMetrics, mentalMetrics }: {
                   <Tooltip
                     contentStyle={{ background: 'var(--court)', border: '1px solid var(--scarlet)', borderRadius: '4px' }}
                     labelStyle={{ color: 'var(--chalk)' }}
-                    formatter={((value: number, name: string) => [`${value.toFixed(1)}%`, name === 'bogeyRate' ? 'Bogey' : 'Double Bogey+']) as never}
+                    formatter={((value: number, name: string) => [`${value.toFixed(0)}%`, name === 'bogeyRate' ? 'Bogey' : 'Double Bogey+']) as never}
                   />
                   <Bar dataKey="bogeyRate" stackId="a" fill="#F59520" name="Bogey" radius={[4, 0, 0, 4]} />
                   <Bar dataKey="doubleBogeyPlusRate" stackId="a" fill="#E8202A" name="Double Bogey+" radius={[0, 4, 4, 0]} />
@@ -410,7 +410,7 @@ export function ScoringView({ metrics, birdieAndBogeyMetrics, mentalMetrics }: {
 
             {/* Main Value */}
             <div className="value-hero" style={{ color: birdieOpportunities.conversionPct >= 50 ? 'var(--under)' : 'var(--bogey)', fontSize: '42px' }}>
-              {birdieOpportunities.conversionPct.toFixed(1)}%
+              {birdieOpportunities.conversionPct.toFixed(0)}%
             </div>
 
             {/* Bottom Info */}

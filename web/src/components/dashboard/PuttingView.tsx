@@ -93,7 +93,7 @@ export function PuttingView({ metrics, lagMetrics, filteredShots }: { metrics: P
             <div className="label" style={{ color: 'var(--ash)' }}>Make % 0-4 ft</div>
           </div>
           <div className="value-hero" style={{ color: getMakePctColor(makePct0to4Ft) }}>
-            {makePct0to4Ft.toFixed(1)}%
+            {makePct0to4Ft.toFixed(0)}%
           </div>
           <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
             <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>Made</div>
@@ -147,7 +147,7 @@ export function PuttingView({ metrics, lagMetrics, filteredShots }: { metrics: P
             <div className="label" style={{ color: 'var(--ash)' }}>Speed Rating</div>
           </div>
           <div className="value-hero" style={{ color: getSpeedRatingColor(speedRating) }}>
-            {speedRating.toFixed(1)}%
+            {speedRating.toFixed(0)}%
           </div>
           <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
             <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>Long</div>
@@ -221,7 +221,7 @@ export function PuttingView({ metrics, lagMetrics, filteredShots }: { metrics: P
                     </td>
                     {puttingByDistance.map(bucket => (
                       <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: bucket.totalPutts > 0 ? getMakePctColor(bucket.makePct) : 'var(--ash)', fontFamily: 'var(--font-mono)' }}>
-                        {bucket.totalPutts > 0 ? `${bucket.makePct.toFixed(1)}%` : ''}
+                        {bucket.totalPutts > 0 ? `${bucket.makePct.toFixed(0)}%` : ''}
                       </td>
                     ))}
                   </tr>
@@ -243,7 +243,7 @@ export function PuttingView({ metrics, lagMetrics, filteredShots }: { metrics: P
                     </td>
                     {puttingByDistance.map(bucket => (
                       <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: bucket.totalPutts > 0 ? getSpeedRatingColor(bucket.speedRatio) : 'var(--ash)', fontFamily: 'var(--font-mono)' }}>
-                        {bucket.totalPutts > 0 ? `${bucket.speedRatio.toFixed(1)}%` : ''}
+                        {bucket.totalPutts > 0 ? `${bucket.speedRatio.toFixed(0)}%` : ''}
                       </td>
                     ))}
                   </tr>
@@ -256,7 +256,7 @@ export function PuttingView({ metrics, lagMetrics, filteredShots }: { metrics: P
                       const isLagBucket = bucket.minDistance >= 13;
                       return (
                         <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: isLagBucket && bucket.proximityMissed > 0 ? 'var(--chalk)' : 'var(--ash)', fontFamily: 'var(--font-mono)' }}>
-                          {isLagBucket && bucket.proximityMissed > 0 ? `${bucket.proximityMissed.toFixed(1)} ft` : ''}
+                          {isLagBucket && bucket.proximityMissed > 0 ? `${bucket.proximityMissed.toFixed(0)} ft` : ''}
                         </td>
                       );
                     })}
@@ -270,7 +270,7 @@ export function PuttingView({ metrics, lagMetrics, filteredShots }: { metrics: P
                       const isLagBucket = bucket.minDistance >= 13;
                       return (
                         <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: isLagBucket && bucket.goodLagPct > 0 ? getGoodLagColor(bucket.goodLagPct) : 'var(--ash)', fontFamily: 'var(--font-mono)' }}>
-                          {isLagBucket && bucket.goodLagPct > 0 ? `${bucket.goodLagPct.toFixed(1)}%` : ''}
+                          {isLagBucket && bucket.goodLagPct > 0 ? `${bucket.goodLagPct.toFixed(0)}%` : ''}
                         </td>
                       );
                     })}
@@ -284,7 +284,7 @@ export function PuttingView({ metrics, lagMetrics, filteredShots }: { metrics: P
                       const isLagBucket = bucket.minDistance >= 13;
                       return (
                         <td key={bucket.label} style={{ padding: '8px 8px', textAlign: 'center', color: isLagBucket && bucket.poorLagPct > 0 ? getPoorLagColor(bucket.poorLagPct) : 'var(--ash)', fontFamily: 'var(--font-mono)' }}>
-                          {isLagBucket && bucket.poorLagPct > 0 ? `${bucket.poorLagPct.toFixed(1)}%` : ''}
+                          {isLagBucket && bucket.poorLagPct > 0 ? `${bucket.poorLagPct.toFixed(0)}%` : ''}
                         </td>
                       );
                     })}
@@ -348,7 +348,7 @@ function LagPuttingSection({ metrics }: { metrics: LagPuttingMetrics }) {
       }}>
         <div style={{ color: 'var(--chalk)', fontWeight: 600 }}>{data.name} ft</div>
         <div style={{ color: 'var(--ash)' }}>
-          {data.value} putts ({data.percentage.toFixed(1)}%)
+          {data.value} putts ({data.percentage.toFixed(0)}%)
         </div>
       </div>
     );
@@ -376,7 +376,7 @@ function LagPuttingSection({ metrics }: { metrics: LagPuttingMetrics }) {
             <div className="label" style={{ color: 'var(--ash)' }}>Avg. Leave Distance</div>
           </div>
           <div className="value-hero" style={{ color: avgLeaveDistance <= 4 ? 'var(--under)' : avgLeaveDistance <= 8 ? 'var(--bogey)' : 'var(--double)' }}>
-            {totalLagPutts > 0 ? `${avgLeaveDistance.toFixed(1)} ft` : '-'}
+            {totalLagPutts > 0 ? `${avgLeaveDistance.toFixed(0)} ft` : '-'}
           </div>
           <div style={{ marginTop: '16px', padding: '8px 0', borderTop: '1px solid var(--charcoal)' }}>
             <div className="label" style={{ color: 'var(--ash)', fontSize: '12px' }}>Total Lag Putts</div>

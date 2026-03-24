@@ -105,12 +105,12 @@ export function CoachingView({ metrics }: { metrics: CoachTableMetrics }) {
     if (effectiveDisplayMode === 'perRound' && !column.isPlayer && typeof value === 'number') {
       // For per round, divide by rounds
       const perRound = player.totalRounds > 0 ? value / player.totalRounds : 0;
-      if (column.isPercent) return `${perRound.toFixed(1)}%`;
+      if (column.isPercent) return `${perRound.toFixed(0)}%`;
       if (column.isSG) return formatStrokesGained(perRound);
       return perRound.toFixed(1);
     }
 
-    if (column.isPercent) return `${(value as number).toFixed(1)}%`;
+    if (column.isPercent) return `${(value as number).toFixed(0)}%`;
     if (column.isSG) return formatStrokesGained(value as number);
     if (typeof value === 'number') return value.toFixed(1);
     return value;
